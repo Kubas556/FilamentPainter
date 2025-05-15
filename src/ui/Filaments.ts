@@ -63,6 +63,7 @@ export function setupDragAndDrop(callback: (list: HTMLUListElement) => void): vo
 	const attachDragHandlers = (dragHandle: HTMLElement) => {
 		dragHandle.setAttribute("draggable", "true");
 		dragHandle.addEventListener("dragstart", (e: DragEvent) => {
+			e.dataTransfer?.setDragImage(document.createElement("image"), 0, 0);
 			const target = e.target as HTMLElement;
 			if (target.classList.contains(dragHandleClassName)) {
 				draggedItem = target.parentElement;

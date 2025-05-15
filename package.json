@@ -1,22 +1,27 @@
 {
-  "name": "Painter",
-  "version": "1.0.0",
-  "description": "",
-  "main": "dist/index.js",
-  "scripts": {
-    "build": "tsc"
-  },
-  "dependencies": {},
-  "devDependencies": {
-    "typescript": "^5.5.3"
-  },
-  "private": true,
-  "prettier": {
-    "singleQuote": false,
-    "semi": true,
-    "trailingComma": "all",
-    "tabWidth": 2,
-    "useTabs": true,
-    "printWidth": 120
-  }
+	"name": "Painter",
+	"version": "1.0.0",
+	"description": "",
+	"main": "dist/index.js",
+	"scripts": {
+		"build": "vite build",
+		"dev": "vite"
+	},
+	"dependencies": {
+		"golden-layout": "^2.6.0"
+	},
+	"devDependencies": {
+		"typescript": "^5.5.3",
+		"vite": "^6.3.5",
+		"vite-plugin-singlefile": "^2.2.0"
+	},
+	"private": true,
+	"prettier": {
+		"singleQuote": false,
+		"semi": true,
+		"trailingComma": "all",
+		"tabWidth": 2,
+		"useTabs": true,
+		"printWidth": 120
+	}
 }

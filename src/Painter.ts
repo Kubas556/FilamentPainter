@@ -1,17 +1,20 @@
-import { config } from "./config/Config.js";
-import { handleImageUpload } from "./Upload.js";
-import { getComputeFunction, GLComputeHeights } from "./gl/compute/Heights.js";
-import { GLImage } from "./gl/Image.js";
-import { debugDisplayDataOutput, debugDisplayHTMLImage } from "./debug/DisplayImage.js";
-import { getFilamentListElements, setupDragAndDrop } from "./ui/Filaments.js";
-import { setupHeightSelector } from "./ui/Heights.js";
-import { HeightFunction } from "./config/Paint.js";
-import { generateLargeHeightmap, generateSTLAndDownload, getHeights } from "./tools/HeightmapExport.js";
-import { setupPreviewWindow } from "./ui/PreviewWindow.js";
-import { initGL } from "./gl/Init.js";
-import { autoUpdateImage, updateImage, updateOtherField } from "./ui/UpdateImage.js";
-import { setupExport } from "./ui/Export.js";
-import { setupExportProject } from "./ui/ExportProject.js";
+import { config } from "./config/Config";
+import { handleImageUpload } from "./Upload";
+import { getComputeFunction, GLComputeHeights } from "./gl/compute/Heights";
+import { GLImage } from "./gl/Image";
+import { debugDisplayDataOutput, debugDisplayHTMLImage } from "./debug/DisplayImage";
+import { getFilamentListElements, setupDragAndDrop } from "./ui/Filaments";
+import { setupHeightSelector } from "./ui/Heights";
+import { HeightFunction } from "./config/Paint";
+import { generateLargeHeightmap, generateSTLAndDownload, getHeights } from "./tools/HeightmapExport";
+import { setupPreviewWindow } from "./ui/PreviewWindow";
+import { initGL } from "./gl/Init";
+import { autoUpdateImage, updateImage, updateOtherField } from "./ui/UpdateImage";
+import { setupExport } from "./ui/Export";
+import { setupExportProject } from "./ui/ExportProject";
+import { GoldenLayout } from "golden-layout";
+import "golden-layout/dist/css/goldenlayout-base.css";
+import "golden-layout/dist/css/themes/goldenlayout-dark-theme.css";
 
 initGL();
 
@@ -42,6 +45,52 @@ initGL();
 //         // downloadSTL(stlString, `large_heightmap_scaled.stl`);
 //     });
 // }
+var layers = document.getElementById("layers-section") as HTMLElement;
+var sidebar = document.querySelector(".config-sidebar") as HTMLElement;
+var canvasSource = document.querySelector("#canvas-source") as HTMLElement;
+var canvasPreview = document.querySelector("#canvas-preview") as HTMLElement;
+var f = new GoldenLayout(document.querySelector(".container") as HTMLDivElement);
+f.loadLayout({
+	header: { popout: "" },
+	dimensions: { borderWidth: 1 },
+	root: { type: "column", content: [] },
+});
+f.registerComponentFactoryFunction("layers", (container, state, virtual) => {
+	container.element.appendChild(layers);
+});
+f.registerComponentFactoryFunction("sidebar", (container, state, virtual) => {
+	container.element.appendChild(sidebar);
+});
+f.registerComponentFactoryFunction("source", (container, state, virtual) => {
+	const element = document.createElement("div");
+	element.appendChild(canvasSource);
+	element.style.display = "flex";
+	element.style.flexDirection = "row";
+	element.style.height = "100%";
+	container.element.appendChild(element);
+});
+f.registerComponentFactoryFunction("preview", (container, state, virtual) => {
+	const element = document.createElement("div");
+	element.appendChild(canvasPreview);
+	element.style.display = "flex";
+	element.style.flexDirection = "row";
+	element.style.height = "100%";
+	container.element.appendChild(element);
+});
+const location = f.addItem({
+	type: "row",
+	content: [
+		{ type: "component", size: "15%", componentType: "sidebar" },
+		{ type: "component", size: "15%", componentType: "layers" },
+		{
+			type: "column",
+			content: [
+				{ type: "component", componentType: "preview" },
+				{ type: "component", componentType: "source" },
+			],
+		},
+	],
+});
 
 const imageResolutionX = document.getElementById("image-resolution-x") as HTMLInputElement;
 const imageResolutionY = document.getElementById("image-resolution-y") as HTMLInputElement;
