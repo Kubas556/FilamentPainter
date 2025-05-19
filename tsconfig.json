@@ -1,15 +1,18 @@
 {
   "compilerOptions": {
-    "target": "ES2020",               // Use modern JavaScript for better browser compatibility
-    "module": "ESNext",               // Enables ESM for browsers
-    "moduleResolution": "Node",       // Ensures proper import resolution
-    "esModuleInterop": true,          // Ensures compatibility with CommonJS/ESM
-    "resolveJsonModule": true,        // Allows importing JSON files
+    "jsx": "react",
+    "target": "ES2020", // Use modern JavaScript for better browser compatibility
+    "module": "ESNext", // Enables ESM for browsers
+    "moduleResolution": "Node", // Ensures proper import resolution
+    "esModuleInterop": true, // Ensures compatibility with CommonJS/ESM
+    "resolveJsonModule": true, // Allows importing JSON files
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
     "outDir": "build",
-    "removeComments": true            // Optional: Removes comments for cleaner output
+    "removeComments": true // Optional: Removes comments for cleaner output
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }

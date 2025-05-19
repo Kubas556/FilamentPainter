@@ -12,12 +12,17 @@ import { initGL } from "./gl/Init";
 import { autoUpdateImage, updateImage, updateOtherField } from "./ui/UpdateImage";
 import { setupExport } from "./ui/Export";
 import { setupExportProject } from "./ui/ExportProject";
-import { GoldenLayout } from "golden-layout";
+import { setupImportProject } from "./ui/ImportProject";
+import { setupGoldenLayout } from "./ui/SetupGoldenLayout";
+import { setupCustom } from "./ui/TestCustom";
+import { setupReact } from "./ui/SetupReact";
 import "golden-layout/dist/css/goldenlayout-base.css";
 import "golden-layout/dist/css/themes/goldenlayout-dark-theme.css";
 
 initGL();
-
+setupCustom();
+//setupGoldenLayout();
+setupReact();
 // config.paint.image = new Image();
 //
 // config.paint.image.onload = () => {
@@ -45,53 +50,6 @@ initGL();
 //         // downloadSTL(stlString, `large_heightmap_scaled.stl`);
 //     });
 // }
-var layers = document.getElementById("layers-section") as HTMLElement;
-var sidebar = document.querySelector(".config-sidebar") as HTMLElement;
-var canvasSource = document.querySelector("#canvas-source") as HTMLElement;
-var canvasPreview = document.querySelector("#canvas-preview") as HTMLElement;
-var f = new GoldenLayout(document.querySelector(".container") as HTMLDivElement);
-f.loadLayout({
-	header: { popout: "" },
-	dimensions: { borderWidth: 1 },
-	root: { type: "column", content: [] },
-});
-f.registerComponentFactoryFunction("layers", (container, state, virtual) => {
-	container.element.appendChild(layers);
-});
-f.registerComponentFactoryFunction("sidebar", (container, state, virtual) => {
-	container.element.appendChild(sidebar);
-});
-f.registerComponentFactoryFunction("source", (container, state, virtual) => {
-	const element = document.createElement("div");
-	element.appendChild(canvasSource);
-	element.style.display = "flex";
-	element.style.flexDirection = "row";
-	element.style.height = "100%";
-	container.element.appendChild(element);
-});
-f.registerComponentFactoryFunction("preview", (container, state, virtual) => {
-	const element = document.createElement("div");
-	element.appendChild(canvasPreview);
-	element.style.display = "flex";
-	element.style.flexDirection = "row";
-	element.style.height = "100%";
-	container.element.appendChild(element);
-});
-const location = f.addItem({
-	type: "row",
-	content: [
-		{ type: "component", size: "15%", componentType: "sidebar" },
-		{ type: "component", size: "15%", componentType: "layers" },
-		{
-			type: "column",
-			content: [
-				{ type: "component", componentType: "preview" },
-				{ type: "component", componentType: "source" },
-			],
-		},
-	],
-});
-
 const imageResolutionX = document.getElementById("image-resolution-x") as HTMLInputElement;
 const imageResolutionY = document.getElementById("image-resolution-y") as HTMLInputElement;
 const physicalXInput = document.getElementById("physical-x") as HTMLInputElement;
@@ -142,6 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 setupExport();
+setupImportProject();
 setupExportProject();
 
 document.getElementById("buy-commercial")?.addEventListener("click", () => {

@@ -23,10 +23,10 @@ function exportProject() {
 		"project.json",
 		JSON.stringify({
 			imageData,
+			layers,
 			heightOptionSelection: heightOptionSelection.value,
 			globalLayerHeightInput: globalLayerHeightInput.value,
 			baseLayerHeight: baseLayerHeight.value,
-			layers,
 			imageResolutionX: imageResolutionX.value,
 			imageResolutionY: imageResolutionY.value,
 			detailSizeInput: detailSizeInput.value,
