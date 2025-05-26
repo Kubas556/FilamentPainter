@@ -7,43 +7,16 @@ export interface FilamentData {
 	layerHeight: number;
 }
 
-export function getFilamentListElements(): FilamentData[] {
-	const draggableList = document.getElementById("draggable-list") as HTMLUListElement;
-	if (!draggableList) {
-		console.error("Draggable list element not found.");
-		return [];
+export const getOpacityFromColor = (hexColor: string) => {
+	if (hexColor) {
+		const r = parseInt(hexColor.substring(1, 3), 16) / 255;
+		const g = parseInt(hexColor.substring(3, 5), 16) / 255;
+		const b = parseInt(hexColor.substring(5, 7), 16) / 255;
+		return getOpacity(r, g, b);
 	}
+};
 
-	const filamentLayers = draggableList.querySelectorAll(".draggable-item");
-	const filamentDataList: FilamentData[] = [];
-
-	filamentLayers.forEach((layer) => {
-		const nameInput = layer.querySelector<HTMLInputElement>("input[readonly]");
-		const colorInput = layer.querySelector<HTMLInputElement>('input[type="color"]');
-		const opacityInput = layer.querySelector<HTMLInputElement>(".filament-layer-opacity");
-		const layerHeightInput = layer.querySelector<HTMLInputElement>(".layer-height-number");
-
-		if (nameInput && colorInput && opacityInput && layerHeightInput) {
-			const opacity = parseFloat(opacityInput.value);
-			const layerHeight = parseFloat(layerHeightInput.value);
-
-			if (!isNaN(opacity) && !isNaN(layerHeight)) {
-				filamentDataList.push({
-					name: nameInput.value,
-					color: colorInput.value,
-					opacity: opacity,
-					layerHeight: layerHeight,
-				});
-			}
-		}
-	});
-
-	return filamentDataList;
-}
-
-let filamentIdCounter = 0;
-
-export function setupDragAndDrop(callback: (list: HTMLUListElement) => void): void {
+/*export function setupDragAndDrop(callback: (list: HTMLUListElement) => void): void {
 	const draggableList = document.getElementById("draggable-list") as HTMLUListElement;
 	const addItemButtonNew = document.getElementById("add-item-button-new") as HTMLButtonElement;
 	const addItemButtonExisting = document.getElementById("add-item-button-existing") as HTMLButtonElement;
@@ -228,16 +201,6 @@ export function setupDragAndDrop(callback: (list: HTMLUListElement) => void): vo
 			}
 		}
 	});
-
-	const updateOpacityFromColorInput = (colorInput: HTMLInputElement, opacityInput: HTMLInputElement) => {
-		const hexColor = colorInput.value;
-		if (hexColor) {
-			const r = parseInt(hexColor.substring(1, 3), 16) / 255;
-			const g = parseInt(hexColor.substring(3, 5), 16) / 255;
-			const b = parseInt(hexColor.substring(5, 7), 16) / 255;
-			opacityInput.value = getOpacity(r, g, b).toFixed(2);
-		}
-	};
 
 	{
 		const newNameInput = document
@@ -561,3 +524,4 @@ function getDragAfterElement(container: HTMLUListElement, y: number, itemClassNa
 		{ offset: Number.NEGATIVE_INFINITY, element: null },
 	).element;
 }
+*/

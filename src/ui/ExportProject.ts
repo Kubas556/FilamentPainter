@@ -1,4 +1,5 @@
-import { config } from "../config/Config.js";
+//TODO
+/*import { config } from "../config/Config.js";
 import { downloadTextFile } from "./Export.js";
 import { getFilamentListElements } from "./Filaments.js";
 
@@ -35,3 +36,4 @@ function exportProject() {
 		}),
 	);
 }
+*/

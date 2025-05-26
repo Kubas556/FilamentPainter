@@ -1,4 +1,5 @@
-import { updateImage } from "./UpdateImage.js";
+//TODO
+/*import { updateImage } from "./UpdateImage.js";
 import { config } from "../config/Config.js";
 import { generateSTLAndDownload, getHeights } from "../tools/HeightmapExport.js";
 import { Filament } from "../Filament.js";
@@ -105,3 +106,4 @@ export function downloadTextFile(filename: string, content: string): void {
 	document.body.removeChild(a);
 	URL.revokeObjectURL(url);
 }
+*/

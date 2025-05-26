@@ -1,5 +1,6 @@
 body {
     margin: 0;
+    height: 100vh;
     font-family: sans-serif;
     display: flex;
     flex-direction: column;
@@ -17,6 +18,19 @@ header {
     flex-direction: row;
     font-weight: bold;
     padding: 0 5rem;
+}
+
+#app {
+    flex: 1;
+}
+
+#project-section, #sidebar, #export-section, #layers-section {
+    padding: 0 1rem;
+}
+
+.preview-canvas-container {
+    display: flex; 
+    height: 100%; 
 }
 
 .page-header {
@@ -41,6 +55,10 @@ header {
     margin: 0;
     font-size: 1rem;
     font-weight: normal;
+}
+
+.sidebar-list, #existing-filament-list {
+    padding: 0;
 }
 
 .container {

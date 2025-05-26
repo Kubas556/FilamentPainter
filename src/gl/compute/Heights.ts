@@ -273,7 +273,7 @@ export class GLComputeHeights extends GLComputeEngine {
      * @return Computed values. Formatted in runs of length 4, i.e. [r1, g1, b1, h1, r2, g2, b2, h2, ...]
      * where ri, gi, bi is the rgb values and hi is the height of the pixel at index i (flattened)
      */
-    compute(image: GLImage): Float32Array<ArrayBuffer> {
+    compute(image: GLImage, configInput: {filaments: Filament[], startHeight: number, endHeight: number, increment: number}): Float32Array<ArrayBuffer> {
         let gl = config.compute.gl;
         let program = this.program.program;
 
@@ -296,8 +296,6 @@ export class GLComputeHeights extends GLComputeEngine {
             throw new Error("Framebuffer is not complete.");
         }
 
-        let filaments: Filament[] = config.paint.filaments;
-
         // const colours = [
         //     1.0, 1.0, 1.0,
         //     0.0, 0.0, 1.0,
@@ -314,8 +312,8 @@ export class GLComputeHeights extends GLComputeEngine {
         const opacities = [];
         let heightRange = [];
 
-        for (let i = 0; i < filaments.length; i++) {
-            let filament = filaments[i];
+        for (let i = 0; i < configInput.filaments.length; i++) {
+            let filament = configInput.filaments[i];
             colours.push(filament.colour[0]);
             colours.push(filament.colour[1]);
             colours.push(filament.colour[2]);
@@ -323,7 +321,7 @@ export class GLComputeHeights extends GLComputeEngine {
             opacities.push(filament.opacity);
         }
 
-        heightRange = [config.paint.startHeight, config.paint.endHeight, config.paint.increment];
+        heightRange = [configInput.startHeight, configInput.endHeight, configInput.increment];
 
         if (heights.length == 0) {
             return new Float32Array();
