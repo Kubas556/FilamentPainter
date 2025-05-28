@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { LayoutContext } from "../LayoutContext";
-import { IExportConfig, IProjectConfig, useEvent } from "../EventHub";
+import { emitEvent, IExportConfig, IProjectConfig, useEvent } from "../EventHub";
 import { getComputeFunction } from "../../gl/compute/Heights";
 import { GLImage } from "../../gl/Image";
 import { FilamentData } from "../Filaments";
@@ -15,11 +15,19 @@ export function ImagePreview() {
 	const [projectConfig, setProjectConfig] = useState<IProjectConfig>(DefaultProjectConfig);
 	const [filamentLayers, setFilamentLayers] = useState<FilamentData[]>([]);
 	const [glImage, setGlImage] = useState<GLImage | undefined>();
+
+	const [computedResult, setComputedResult] = useState<Float32Array>();
+	const [filaments, setFilaments] = useState<Filament[]>([]);
+
 	const imageRef = useRef<HTMLCanvasElement>(null);
 
 	if (!layoutManager) {
 		return <div>Layout manager not found</div>;
 	}
+
+	useEffect(() => {
+		emitEvent(layoutManager, "computedDataChanged", { computedResult, filaments });
+	}, [computedResult, filaments]);
 
 	useEvent("imageChanged", (image) => {
 		if (image.imageElement) {
@@ -65,7 +73,7 @@ export function ImagePreview() {
 				canvas.height = resized.height;
 
 				let filaments: FilamentData[] = [...filamentLayers].reverse(); //getFilamentListElements().reverse();
-				let layerHeight = projectConfig.layerHeight;
+				let layerHeight = projectConfig.baseLayerHeight;
 				const usedFilaments = [];
 				for (let i = 0; i < filaments.length; i++) {
 					usedFilaments.push(
@@ -78,6 +86,7 @@ export function ImagePreview() {
 					);
 					layerHeight += filaments[i].layerHeight;
 				}
+				setFilaments(usedFilaments);
 
 				const startHeight = projectConfig.baseLayerHeight;
 				const endHeight = layerHeight;
@@ -89,6 +98,7 @@ export function ImagePreview() {
 					endHeight,
 					increment,
 				});
+				setComputedResult(computedResult);
 
 				if (!ctx) {
 					throw new Error("Canvas 2D context not available.");

@@ -3,10 +3,16 @@ import { LayoutContext } from "./LayoutContext";
 import { LayoutManager } from "golden-layout";
 import { ImageUpload } from "../Upload";
 import { FilamentData } from "./Filaments";
+import { Filament } from "../Filament";
 
 interface ISize {
 	x: number;
 	y: number;
+}
+
+export interface IComputedDataChanged {
+	computedResult: Float32Array | undefined;
+	filaments: Filament[];
 }
 
 export interface IExportConfig {
@@ -32,6 +38,7 @@ type Events = {
 	projectConfigChanged: IProjectConfig;
 	layersChanged: IFilamentAdded;
 	layerAdded: FilamentData;
+	computedDataChanged: IComputedDataChanged;
 };
 
 export function useEvent<E extends keyof Events>(name: E, callback: (arg: Events[E]) => void) {

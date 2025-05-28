@@ -104,6 +104,13 @@ export function Layout(/*{ container, eventHub, state }: ILyoutProps*/) {
 
 	return (
 		<LayoutContext.Provider value={layoutMan}>
+			<style>
+				{`
+				.lm_header .lm_tab.lm_active.lm_focused {
+    				background-color: #a335e3;
+				}
+				`}
+			</style>
 			{layoutMan &&
 				Object.keys(componentContainers).map((name) => {
 					const Component = componentTypes[name];

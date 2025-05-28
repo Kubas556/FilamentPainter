@@ -1,6 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
-import { emitEvent, useEvent } from "../EventHub";
+import { emitEvent, IComputedDataChanged, useEvent } from "../EventHub";
 import { LayoutContext } from "../LayoutContext";
+import { DefaultProjectConfig } from "./Project";
+import { generateSTL } from "../Export";
 
 export const defaultExportConfig = {
 	imageResolution: { x: 0, y: 0 },
@@ -17,6 +19,8 @@ export function Export() {
 	const [physicalSize, setPhysicalSize] = useState(defaultExportConfig.physicalSize);
 	const [detailSize, setDetailSize] = useState(defaultExportConfig.detailSize);
 	const [aspectRatio, setAspectRatio] = useState(defaultExportConfig.aspectRatio);
+	const [projectConfig, setProjectConfig] = useState(DefaultProjectConfig);
+	const [computedData, setComputedData] = useState<IComputedDataChanged>();
 
 	if (!layoutManager) {
 		return <div>Layout manager not found</div>;
@@ -32,9 +36,13 @@ export function Export() {
 		}
 	};
 
-	useEffect(() => {
-		emitEvent(layoutManager, "exportConfigChanged", { imageResolution, physicalSize, detailSize, aspectRatio });
-	}, [layoutManager, imageResolution, physicalSize, detailSize, aspectRatio]);
+	useEvent("projectConfigChanged", (config) => {
+		setProjectConfig(config);
+	});
+
+	useEvent("computedDataChanged", (data) => {
+		setComputedData(data);
+	});
 
 	useEvent("imageChanged", (image) => {
 		if (image.imageElement) {
@@ -43,6 +51,10 @@ export function Export() {
 			setPhysicalSize({ x: defaultPhsicalSizeX, y: defaultPhsicalSizeX / newAspectRatio });
 		}
 	});
+
+	useEffect(() => {
+		emitEvent(layoutManager, "exportConfigChanged", { imageResolution, physicalSize, detailSize, aspectRatio });
+	}, [layoutManager, imageResolution, physicalSize, detailSize, aspectRatio]);
 
 	useEffect(() => {
 		const newImageResulution = {
@@ -108,7 +120,20 @@ export function Export() {
 			<br></br>
 			If you would like to purchase a commercial license, click the button below.
 			<button id="buy-commercial">Buy Commercial License ($20)</button>
-			<button id="export-stl">Export as STL</button>
+			<button
+				id="export-stl"
+				onClick={() => {
+					if (computedData?.computedResult && computedData.filaments)
+						generateSTL(
+							computedData.computedResult,
+							{ aspectRatio, detailSize, imageResolution, physicalSize },
+							projectConfig,
+							computedData.filaments,
+						);
+				}}
+			>
+				Export as STL
+			</button>
 			<button id="export-project">Export as Project (In Development)</button>
 			<br></br>
 			<a href="https://github.com/hpnrep6/FilamentPainter" target="_blank">

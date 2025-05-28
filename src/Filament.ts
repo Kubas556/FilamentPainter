@@ -1,4 +1,4 @@
-import { vec3 } from "./Types.js";
+import { vec3 } from "./Types";
 
 export class Filament {
 	colour: vec3 = vec3(0, 0, 0);

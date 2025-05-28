@@ -1,5 +1,5 @@
-import { HeightFunction } from "../config/Paint.js";
-import { IExportConfig } from "./EventHub.js";
+import { HeightFunction } from "../config/Paint";
+import { IExportConfig } from "./EventHub";
 
 export function getTopographyFunction(selectedValue?: string) {
 	let selectedHeightFunction: HeightFunction;
