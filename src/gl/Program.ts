@@ -1,5 +1,5 @@
-import { config } from "../config/Config.js";
-import { GLShader } from "./Shader.js";
+import { config } from "../config/Config";
+import { GLShader } from "./Shader";
 
 export class GLProgram {
 	public program: WebGLProgram;

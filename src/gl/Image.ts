@@ -1,4 +1,4 @@
-import { config } from "../config/Config.js";
+import { config } from "../config/Config";
 
 export class GLImage {
 	public texture: WebGLTexture;

@@ -1,4 +1,4 @@
-import { vec2, vec2i } from "../Types.js";
+import { vec2, vec2i } from "../Types";
 
 export class ExportConfig {
 	pixelDimensions: vec2i = new vec2i(0, 0);

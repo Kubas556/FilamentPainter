@@ -1,4 +1,4 @@
-import { config } from "../config/Config.js";
+import { config } from "../config/Config";
 
 export function initGL() {
 	const canvas = document.createElement("canvas");

@@ -1,6 +1,6 @@
-import { GLShader } from "../Shader.js";
-import { GLProgram } from "../Program.js";
-import { config } from "../../config/Config.js";
+import { GLShader } from "../Shader";
+import { GLProgram } from "../Program";
+import { config } from "../../config/Config";
 
 export class GLComputeEngine {
 	vertexShader: GLShader;

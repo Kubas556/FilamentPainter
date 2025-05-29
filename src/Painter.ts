@@ -1,11 +1,9 @@
 import { initGL } from "./gl/Init";
-import { setupCustom } from "./ui/TestCustom";
 import { setupReact } from "./ui/SetupReact";
 import "golden-layout/dist/css/goldenlayout-base.css";
 import "golden-layout/dist/css/themes/goldenlayout-dark-theme.css";
 
 initGL();
-setupCustom();
 //setupGoldenLayout();
 setupReact();
 

@@ -1,8 +1,8 @@
-import {GLImage} from "../Image.js";
-import {GLComputeEngine} from "./Engine.js";
-import {HeightFunction} from "../../config/Paint.js";
-import {config} from "../../config/Config.js";
-import {Filament} from "../../Filament.js";
+import {GLImage} from "../Image";
+import {GLComputeEngine} from "./Engine";
+import {HeightFunction} from "../../config/Paint";
+import {config} from "../../config/Config";
+import {Filament} from "../../Filament";
 
 
 function generateFragmentShader(heightFunction: string) {

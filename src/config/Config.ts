@@ -1,6 +1,6 @@
-import { ComputeConfig } from "./Compute.js";
-import { ExportConfig } from "./Export.js";
-import { PaintConfig } from "./Paint.js";
+import { ComputeConfig } from "./Compute";
+import { ExportConfig } from "./Export";
+import { PaintConfig } from "./Paint";
 
 export class Config {
 	private _compute: ComputeConfig = new ComputeConfig();

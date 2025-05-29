@@ -1,5 +1,4 @@
-import { vec2 } from "../Types.js";
-import { Filament } from "../Filament.js";
+import { Filament } from "../Filament";
 
 export enum HeightFunction {
 	NEAREST,
