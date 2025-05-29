@@ -72,6 +72,7 @@ Set base layer height to ${projectConfig.baseLayerHeight} mm and layer height to
 ${swapString}`;
 
 	downloadTextFile("Filament Painter Instructions.txt", instructionString);
+	return instructionString;
 }
 
 export function downloadTextFile(filename: string, content: string): void {

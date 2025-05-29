@@ -2,14 +2,14 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { LayoutContext } from "../LayoutContext";
 import { emitEvent, IProjectConfig, useEvent } from "../EventHub";
 import { FilamentData } from "../Filaments";
-import { DefaultProjectConfig } from "./Project";
+import { IComponentProjectData } from "../ExportProject";
 
-export function Layers() {
+export function Layers(props: IComponentProjectData) {
 	const layoutManager = useContext(LayoutContext);
-	const [filamentLayers, setFilamentLayers] = useState<FilamentData[]>([]);
-	const [projectConfig, setProjectConfig] = useState<IProjectConfig>(DefaultProjectConfig);
-	const [draggedItem, setDraggedItem] = useState</*HTMLDivElement*/ number | null>(null);
-	const [dropItemPosition, setDropItemPosition] = useState</*HTMLDivElement*/ number | null>(null);
+	const [filamentLayers, setFilamentLayers] = useState<FilamentData[]>(props.filamentLayers);
+	const [projectConfig, setProjectConfig] = useState<IProjectConfig>(props.projectConfig);
+
+	const [draggedItem, setDraggedItem] = useState<number | null>(null);
 	const ulRef = useRef<HTMLUListElement>(null);
 
 	if (!layoutManager) {
@@ -18,11 +18,9 @@ export function Layers() {
 
 	const handleDragEnd = (e: React.DragEvent<HTMLUListElement>) => {
 		setDraggedItem(null);
-		setDropItemPosition(null);
 	};
 
 	useEvent("layerAdded", (layer) => {
-		console.log(filamentLayers);
 		setFilamentLayers((prev) => {
 			if (prev.some((l) => l.name === layer.name)) {
 				alert(`Layer with name ${layer.name} already exists.`);
@@ -38,7 +36,7 @@ export function Layers() {
 	});
 
 	useEffect(() => {
-		emitEvent(layoutManager, "layersChanged", { data: filamentLayers });
+		emitEvent(layoutManager, "layersChanged", structuredClone({ data: filamentLayers }));
 	}, [filamentLayers]);
 
 	return (

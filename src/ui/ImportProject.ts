@@ -1,4 +1,6 @@
-export type ProjectLoadedCallback = (data: string) => void;
+import { ExportedProjectData } from "./ExportProject";
+
+export type ProjectLoadedCallback = (data: ExportedProjectData) => void;
 
 export function loadProject(callback: ProjectLoadedCallback) {
 	openFileDialog((e) => importProject(e, callback));
@@ -23,8 +25,13 @@ function importProject(e: Event, callback: ProjectLoadedCallback) {
 		const reader = new FileReader();
 		reader.onload = (readEvent) => {
 			const res = readEvent.target?.result as string;
-			callback(res);
+			const parsedData: ExportedProjectData = JSON.parse(res);
+			callback(parsedData);
 		};
 		reader.readAsText(file);
 	}
+}
+
+export function delay(ms: number): Promise<void> {
+	return new Promise((resolve) => setTimeout(resolve, ms));
 }

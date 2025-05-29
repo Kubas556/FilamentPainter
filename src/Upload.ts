@@ -4,43 +4,57 @@ export interface ImageUpload {
 	error: string | null;
 }
 
-export function handleImageUpload(
+export async function handleImageUploadAsync(
 	e: React.ChangeEvent<HTMLInputElement>,
 	callback: (result: ImageUpload) => void,
-): void {
+): Promise<void> {
 	const target = e.target;
 	const file = target.files?.[0];
 
-	if (!file) {
-		callback({ file: null, imageElement: null, error: "No file selected." });
-		return;
-	}
+	callback(await readImageFromFileAsync(file));
+}
 
-	if (!file.type.startsWith("image/")) {
-		callback({ file: null, imageElement: null, error: "Selected file is not an image." });
-		return;
-	}
+export function readImageFromFileAsync(file: File | undefined): Promise<ImageUpload> {
+	return new Promise((resolve) => {
+		if (!file) {
+			resolve({ file: null, imageElement: null, error: "No file selected." });
+			return;
+		}
 
-	const reader = new FileReader();
+		if (!file.type.startsWith("image/")) {
+			resolve({ file: null, imageElement: null, error: "Selected file is not an image." });
+			return;
+		}
 
-	reader.onload = (readEvent) => {
-		const dataUrl = readEvent.target?.result as string;
+		const reader = new FileReader();
+
+		reader.onload = (readEvent) => {
+			const dataUrl = readEvent.target?.result as string;
+			getImageFromStringAsync(dataUrl).then((result) => {
+				resolve({ file, imageElement: result.imageElement, error: result.error });
+			});
+		};
+
+		reader.onerror = () => {
+			resolve({ file, imageElement: null, error: "Error reading the file." });
+		};
+
+		reader.readAsDataURL(file);
+	});
+}
+
+export function getImageFromStringAsync(data: string) {
+	return new Promise<ImageUpload>((resolve) => {
 		const img = new Image();
 
 		img.onload = () => {
-			callback({ file, imageElement: img, error: null });
+			resolve({ file: null, imageElement: img, error: null });
 		};
 
 		img.onerror = () => {
-			callback({ file, imageElement: null, error: "Error loading the image." });
+			resolve({ file: null, imageElement: null, error: "Error loading the image from string." });
 		};
 
-		img.src = dataUrl;
-	};
-
-	reader.onerror = () => {
-		callback({ file, imageElement: null, error: "Error reading the file." });
-	};
-
-	reader.readAsDataURL(file);
+		img.src = data;
+	});
 }

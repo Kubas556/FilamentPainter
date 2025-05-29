@@ -1,8 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
-import { emitEvent, IComputedDataChanged, useEvent } from "../EventHub";
+import { emitEvent, IComputedData, useEvent } from "../EventHub";
 import { LayoutContext } from "../LayoutContext";
 import { DefaultProjectConfig } from "./Project";
 import { generateSTL } from "../Export";
+import { exportProject, IComponentProjectData } from "../ExportProject";
+import { FilamentData } from "../Filaments";
 
 export const defaultExportConfig = {
 	imageResolution: { x: 0, y: 0 },
@@ -13,14 +15,18 @@ export const defaultExportConfig = {
 
 const defaultPhsicalSizeX = 100;
 
-export function Export() {
+export function Export(props: IComponentProjectData) {
 	const layoutManager = useContext(LayoutContext);
-	const [imageResolution, setImageResolution] = useState(defaultExportConfig.imageResolution);
-	const [physicalSize, setPhysicalSize] = useState(defaultExportConfig.physicalSize);
-	const [detailSize, setDetailSize] = useState(defaultExportConfig.detailSize);
-	const [aspectRatio, setAspectRatio] = useState(defaultExportConfig.aspectRatio);
+	const [imageResolution, setImageResolution] = useState(props.exportConfig.imageResolution);
+	const [physicalSize, setPhysicalSize] = useState(props.exportConfig.physicalSize);
+	const [detailSize, setDetailSize] = useState(props.exportConfig.detailSize);
+	const [aspectRatio, setAspectRatio] = useState(props.exportConfig.aspectRatio);
 	const [projectConfig, setProjectConfig] = useState(DefaultProjectConfig);
-	const [computedData, setComputedData] = useState<IComputedDataChanged>();
+	const [sourceImage, setSourceImage] = useState<string | undefined>(props.image);
+	const [layers, setLayers] = useState<FilamentData[]>(props.filamentLayers);
+	const [computedData, setComputedData] = useState<IComputedData | undefined>(props.computedData);
+
+	const [instructions, setInstructions] = useState<string>("");
 
 	if (!layoutManager) {
 		return <div>Layout manager not found</div>;
@@ -44,8 +50,14 @@ export function Export() {
 		setComputedData(data);
 	});
 
+	useEvent("layersChanged", (layers) => {
+		setLayers(layers.data);
+	});
+
 	useEvent("imageChanged", (image) => {
 		if (image.imageElement) {
+			setSourceImage(image.imageElement.src);
+
 			const newAspectRatio = image.imageElement.width / image.imageElement.height;
 			setAspectRatio(newAspectRatio);
 			setPhysicalSize({ x: defaultPhsicalSizeX, y: defaultPhsicalSizeX / newAspectRatio });
@@ -53,7 +65,11 @@ export function Export() {
 	});
 
 	useEffect(() => {
-		emitEvent(layoutManager, "exportConfigChanged", { imageResolution, physicalSize, detailSize, aspectRatio });
+		emitEvent(
+			layoutManager,
+			"exportConfigChanged",
+			structuredClone({ imageResolution, physicalSize, detailSize, aspectRatio }),
+		);
 	}, [layoutManager, imageResolution, physicalSize, detailSize, aspectRatio]);
 
 	useEffect(() => {
@@ -115,7 +131,14 @@ export function Export() {
 			<div className="inline-div">
 				<h3>Print Instructions</h3>
 			</div>
-			<textarea id="instructions" rows={30}></textarea>
+			<textarea
+				id="instructions"
+				rows={30}
+				value={instructions}
+				onChange={(e) => {
+					setInstructions(e.target.value);
+				}}
+			></textarea>
 			ℹ️ Notice: This software is only free for non-commercial use.
 			<br></br>
 			If you would like to purchase a commercial license, click the button below.
@@ -124,17 +147,34 @@ export function Export() {
 				id="export-stl"
 				onClick={() => {
 					if (computedData?.computedResult && computedData.filaments)
-						generateSTL(
-							computedData.computedResult,
-							{ aspectRatio, detailSize, imageResolution, physicalSize },
-							projectConfig,
-							computedData.filaments,
+						setInstructions(
+							generateSTL(
+								computedData.computedResult,
+								{ aspectRatio, detailSize, imageResolution, physicalSize },
+								projectConfig,
+								computedData.filaments,
+							) ?? "",
 						);
 				}}
 			>
 				Export as STL
 			</button>
-			<button id="export-project">Export as Project (In Development)</button>
+			<button
+				id="export-project"
+				onClick={() => {
+					if (sourceImage && computedData) {
+						exportProject(
+							sourceImage,
+							projectConfig,
+							{ imageResolution, physicalSize, detailSize, aspectRatio },
+							layers,
+							computedData,
+						);
+					}
+				}}
+			>
+				Export as Project (In Development)
+			</button>
 			<br></br>
 			<a href="https://github.com/hpnrep6/FilamentPainter" target="_blank">
 				Check out the source code on GitHub.

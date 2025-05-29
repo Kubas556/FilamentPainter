@@ -2,15 +2,15 @@ import React, { useContext, useEffect, useState } from "react";
 import { LayoutContext } from "../LayoutContext";
 import { FilamentData, getOpacityFromColor } from "../Filaments";
 import { emitEvent, useEvent } from "../EventHub";
-import { DefaultProjectConfig } from "./Project";
+import { IComponentProjectData } from "../ExportProject";
 
-export function Sidebar() {
+export function Sidebar(props: IComponentProjectData) {
 	const layoutManager = useContext(LayoutContext);
 	const [filamentToAdd, setFilamentToAdd] = useState<FilamentData>({
 		color: "#000000",
 		name: "Filament 1",
 		opacity: 0.1,
-		layerHeight: DefaultProjectConfig.layerHeight,
+		layerHeight: props.projectConfig.layerHeight,
 	});
 
 	if (!layoutManager) {
@@ -105,9 +105,11 @@ export function Sidebar() {
 			</ul>
 			<ul id="existing-filament-list"></ul>
 
-			<button id="update-painting-button">Update Painting</button>
+			<button id="update-painting-button" disabled>
+				Update Painting
+			</button>
 			<div>
-				<input type="checkbox" checked id="auto-update-checkbox" onChange={() => {}} />
+				<input type="checkbox" checked id="auto-update-checkbox" disabled onChange={() => {}} />
 				Automatically Update Painting
 			</div>
 		</section>

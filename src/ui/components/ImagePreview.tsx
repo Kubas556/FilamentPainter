@@ -6,18 +6,18 @@ import { GLImage } from "../../gl/Image";
 import { FilamentData } from "../Filaments";
 import { Filament } from "../../Filament";
 import { getTopographyFunction, resizePaintImage } from "../UpdateImage";
-import { DefaultProjectConfig } from "./Project";
+import { IComponentProjectData } from "../ExportProject";
 
-export function ImagePreview() {
+export function ImagePreview(props: IComponentProjectData) {
 	const layoutManager = useContext(LayoutContext);
-	const [sourceImage, setSourceImage] = useState<HTMLImageElement>();
-	const [exportConfig, setExportConfig] = useState<IExportConfig>();
-	const [projectConfig, setProjectConfig] = useState<IProjectConfig>(DefaultProjectConfig);
-	const [filamentLayers, setFilamentLayers] = useState<FilamentData[]>([]);
-	const [glImage, setGlImage] = useState<GLImage | undefined>();
+	const [sourceImage, setSourceImage] = useState<HTMLImageElement | undefined>(props.sourceImage);
+	const [exportConfig, setExportConfig] = useState<IExportConfig>(props.exportConfig);
+	const [projectConfig, setProjectConfig] = useState<IProjectConfig>(props.projectConfig);
+	const [filamentLayers, setFilamentLayers] = useState<FilamentData[]>(props.filamentLayers);
+	const [computedResult, setComputedResult] = useState<Float32Array | undefined>(props.computedData?.computedResult);
+	const [filaments, setFilaments] = useState<Filament[]>(props.computedData?.filaments ?? []);
 
-	const [computedResult, setComputedResult] = useState<Float32Array>();
-	const [filaments, setFilaments] = useState<Filament[]>([]);
+	const [glImage, setGlImage] = useState<GLImage | undefined>();
 
 	const imageRef = useRef<HTMLCanvasElement>(null);
 
@@ -26,7 +26,7 @@ export function ImagePreview() {
 	}
 
 	useEffect(() => {
-		emitEvent(layoutManager, "computedDataChanged", { computedResult, filaments });
+		emitEvent(layoutManager, "computedDataChanged", structuredClone({ computedResult, filaments }));
 	}, [computedResult, filaments]);
 
 	useEvent("imageChanged", (image) => {
@@ -117,8 +117,19 @@ export function ImagePreview() {
 	}, [imageRef.current, sourceImage, exportConfig, projectConfig, filamentLayers]);
 
 	return (
-		<div className="preview-canvas-container">
-			<canvas id="canvas-preview" className="preview-canvas" ref={imageRef} />
+		<div className="preview-container-observer">
+			<style>
+				{`
+				@container canvas (max-aspect-ratio: ${(imageRef.current?.width ?? 0) / (imageRef.current?.height ?? 0)}) {
+					.preview-canvas-container {
+						flex-direction: column;
+					}
+				}
+			`}
+			</style>
+			<div className="preview-canvas-container">
+				<canvas id="canvas-preview" className="preview-canvas" ref={imageRef} />
+			</div>
 		</div>
 	);
 }

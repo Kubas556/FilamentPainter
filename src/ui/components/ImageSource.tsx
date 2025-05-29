@@ -1,11 +1,12 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { LayoutContext } from "../LayoutContext";
 import { IExportConfig, useEvent } from "../EventHub";
+import { IComponentProjectData } from "../ExportProject";
 
-export function ImageSource() {
+export function ImageSource(props: IComponentProjectData) {
 	const layoutManager = useContext(LayoutContext);
-	const [sourceImage, setSourceImage] = useState<HTMLImageElement>();
-	const [exportConfig, setExportConfig] = useState<IExportConfig>();
+	const [sourceImage, setSourceImage] = useState<HTMLImageElement | undefined>(props.sourceImage);
+	const [exportConfig, setExportConfig] = useState<IExportConfig>(props.exportConfig);
 	const imageRef = useRef<HTMLCanvasElement>(null);
 
 	if (!layoutManager) {
@@ -43,8 +44,19 @@ export function ImageSource() {
 	}, [imageRef, sourceImage, exportConfig]);
 
 	return (
-		<div className="preview-canvas-container">
-			<canvas id="canvas-source" className="preview-canvas" ref={imageRef} />
+		<div className="preview-container-observer">
+			<style>
+				{`
+				@container canvas (max-aspect-ratio: ${(imageRef.current?.width ?? 0) / (imageRef.current?.height ?? 0)}) {
+					.preview-canvas-container {
+						flex-direction: column;
+					}
+				}
+			`}
+			</style>
+			<div className="preview-canvas-container">
+				<canvas id="canvas-source" className="preview-canvas" ref={imageRef} />
+			</div>
 		</div>
 	);
 }

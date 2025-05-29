@@ -1,8 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
 import { loadProject } from "../ImportProject";
-import { handleImageUpload } from "../../Upload";
+import { handleImageUploadAsync } from "../../Upload";
 import { LayoutContext } from "../LayoutContext";
 import { emitEvent } from "../EventHub";
+import { IComponentProjectData } from "../ExportProject";
 
 export const DefaultProjectConfig = {
 	selectedTopographyFunction: "nearest",
@@ -10,24 +11,28 @@ export const DefaultProjectConfig = {
 	baseLayerHeight: 0.2,
 };
 
-export function Project() {
+export function Project(props: IComponentProjectData) {
 	const layoutManager = useContext(LayoutContext);
 	const [selectedTopographyFunction, setSelectedTopographyFunction] = useState(
-		DefaultProjectConfig.selectedTopographyFunction,
+		props.projectConfig.selectedTopographyFunction,
 	);
-	const [layerHeight, setLayerHeight] = useState(DefaultProjectConfig.layerHeight);
-	const [baseLayerHeight, setBaseLayerHeight] = useState(DefaultProjectConfig.baseLayerHeight);
+	const [layerHeight, setLayerHeight] = useState(props.projectConfig.layerHeight);
+	const [baseLayerHeight, setBaseLayerHeight] = useState(props.projectConfig.baseLayerHeight);
 
 	if (!layoutManager) {
 		return <div>Layout manager not found</div>;
 	}
 
 	useEffect(() => {
-		emitEvent(layoutManager, "projectConfigChanged", {
-			selectedTopographyFunction,
-			layerHeight,
-			baseLayerHeight,
-		});
+		emitEvent(
+			layoutManager,
+			"projectConfigChanged",
+			structuredClone({
+				selectedTopographyFunction,
+				layerHeight,
+				baseLayerHeight,
+			}),
+		);
 	}, [layoutManager, selectedTopographyFunction, layerHeight, baseLayerHeight]);
 
 	return (
@@ -39,11 +44,11 @@ export function Project() {
 					id="image-upload"
 					type="file"
 					onChange={(e) =>
-						handleImageUpload(e, (result) => {
+						handleImageUploadAsync(e, (result) => {
 							if (result.error) {
 								console.error("Image upload error:", result.error);
 							} else if (result.imageElement) {
-								if (result.file) emitEvent(layoutManager, "imageChanged", result);
+								emitEvent(layoutManager, "imageChanged", result);
 							}
 						})
 					}
@@ -57,7 +62,7 @@ export function Project() {
 					id="import-project"
 					onClick={() =>
 						loadProject((e) => {
-							console.log(e);
+							emitEvent(layoutManager, "projectLoaded", e);
 						})
 					}
 				>
