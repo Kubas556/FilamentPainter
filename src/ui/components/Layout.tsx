@@ -141,7 +141,7 @@ export function Layout(/*{ container, eventHub, state }: ILyoutProps*/) {
 			<style>
 				{`
 				.lm_header .lm_tab.lm_active.lm_focused {
-    				background-color: #a335e3;
+    				background-color: #500f81;
 				}
 				`}
 			</style>
