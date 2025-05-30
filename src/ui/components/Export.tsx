@@ -82,7 +82,8 @@ export function Export(props: IComponentProjectData) {
 	}, [physicalSize, detailSize]);
 
 	return (
-		<div id="export-section">
+		<section id="export-section">
+			<h3>Export options</h3>
 			<div>
 				<label>Image Resolution:</label>
 				w <input className="input-number" type="number" id="image-resolution-x" readOnly value={imageResolution.x} /> px
@@ -139,10 +140,6 @@ export function Export(props: IComponentProjectData) {
 					setInstructions(e.target.value);
 				}}
 			></textarea>
-			ℹ️ Notice: This software is only free for non-commercial use.
-			<br></br>
-			If you would like to purchase a commercial license, click the button below.
-			<button id="buy-commercial">Buy Commercial License ($20)</button>
 			<button
 				id="export-stl"
 				onClick={() => {
@@ -176,13 +173,13 @@ export function Export(props: IComponentProjectData) {
 				Export as Project (In Development)
 			</button>
 			<br></br>
-			<a href="https://github.com/hpnrep6/FilamentPainter" target="_blank">
+			<a href="https://github.com/Kubas556/FilamentPainter" target="_blank">
 				Check out the source code on GitHub.
 			</a>
 			<a href="https://www.reddit.com/r/FilamentPainter" target="_blank">
 				Join the Filament Painter subreddit.
 			</a>
 			<a>For any inquiries, please contact: hpnrep9@gmail.com</a>
-		</div>
+		</section>
 	);
 }

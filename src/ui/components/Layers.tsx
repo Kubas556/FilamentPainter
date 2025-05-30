@@ -40,7 +40,7 @@ export function Layers(props: IComponentProjectData) {
 	}, [filamentLayers]);
 
 	return (
-		<div id="layers-section">
+		<section id="layers-section">
 			<div className="row filament-list-item" id="end-layer-height-label">
 				{`End height: ${filamentLayers
 					.reduce((sum, layer) => sum + layer.layerHeight, projectConfig.baseLayerHeight)
@@ -87,7 +87,7 @@ export function Layers(props: IComponentProjectData) {
 					))}
 			</ul>
 			<div className="row filament-list-item">Build Plate: 0 mm</div>
-		</div>
+		</section>
 	);
 }
 
