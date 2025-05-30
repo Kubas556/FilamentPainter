@@ -126,9 +126,8 @@ export function Export(props: IComponentProjectData) {
 				/>{" "}
 				mm
 			</div>
-			<span id="file-size-estimate">{`Estimated file size: ${
-				(imageResolution.x * imageResolution.y * 200) / 1000000
-			} MB`}</span>
+			<span id="file-size-estimate">{`Estimated file size: ${(imageResolution.x * imageResolution.y * 200) / 1000000
+				} MB`}</span>
 			<div className="inline-div">
 				<h3>Print Instructions</h3>
 			</div>
@@ -170,7 +169,7 @@ export function Export(props: IComponentProjectData) {
 					}
 				}}
 			>
-				Export as Project (In Development)
+				Export as Project
 			</button>
 			<br></br>
 			<a href="https://github.com/Kubas556/FilamentPainter" target="_blank">
