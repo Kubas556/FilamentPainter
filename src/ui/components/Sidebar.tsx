@@ -93,7 +93,9 @@ export function Sidebar(props: IComponentProjectData) {
 					</button>
 				</li>
 
-				<li className="filament-list-item">
+				{
+					//TODO: Implement existing filament selection
+					/*<li className="filament-list-item">
 					<span>Choose Existing Filament</span>
 					<select id="existing-filament-selection">
 						<option value="None">Choose an existing filament</option>
@@ -101,9 +103,12 @@ export function Sidebar(props: IComponentProjectData) {
 					<button className="filament-add-button" id="add-item-button-existing">
 						Add Filament Layer
 					</button>
-				</li>
+				</li>*/
+				}
 			</ul>
-			<ul id="existing-filament-list"></ul>
+			{
+				//TODO: Implement filament list
+				/*<ul id="existing-filament-list"></ul>
 
 			<button id="update-painting-button" disabled>
 				Update Painting
@@ -111,7 +116,8 @@ export function Sidebar(props: IComponentProjectData) {
 			<div>
 				<input type="checkbox" checked id="auto-update-checkbox" disabled onChange={() => {}} />
 				Automatically Update Painting
-			</div>
+			</div>*/
+			}
 		</section>
 	);
 }

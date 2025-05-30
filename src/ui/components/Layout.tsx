@@ -24,7 +24,7 @@ const defaultLayout: LayoutConfig = {
 				type: "stack",
 				size: "15%",
 				content: [
-					{ type: "component", componentType: "sidebar" },
+					{ type: "component", componentType: "filament" },
 					{ type: "component", componentType: "project" },
 					{ type: "component", componentType: "export" },
 				],
@@ -49,7 +49,7 @@ export interface ILyoutProps {
 type ComponentMap = { [name: string]: (props: IComponentProjectData) => React.JSX.Element };
 
 const componentTypes: ComponentMap = {
-	sidebar: Sidebar,
+	filament: Sidebar,
 	layers: Layers,
 	export: Export,
 	imagePreview: ImagePreview,
