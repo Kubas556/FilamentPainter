@@ -14,7 +14,7 @@ export function ImagePreview(props: IComponentProjectData) {
 	const [exportConfig, setExportConfig] = useState<IExportConfig>(props.exportConfig);
 	const [projectConfig, setProjectConfig] = useState<IProjectConfig>(props.projectConfig);
 	const [filamentLayers, setFilamentLayers] = useState<FilamentData[]>(props.filamentLayers);
-	const [computedResult, setComputedResult] = useState<Float32Array | undefined>(props.computedData?.computedResult);
+	const [computedResult, setComputedResult] = useState<Float32Array<ArrayBuffer> | undefined>(props.computedData?.computedResult);
 	const [filaments, setFilaments] = useState<Filament[]>(props.computedData?.filaments ?? []);
 
 	const [glImage, setGlImage] = useState<GLImage | undefined>();

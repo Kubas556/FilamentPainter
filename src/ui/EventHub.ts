@@ -12,7 +12,7 @@ interface ISize {
 }
 
 export interface IComputedData {
-	computedResult: Float32Array | undefined;
+	computedResult: Float32Array<ArrayBuffer> | undefined;
 	filaments: Filament[];
 }
 
