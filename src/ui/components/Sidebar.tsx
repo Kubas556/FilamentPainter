@@ -3,6 +3,7 @@ import { LayoutContext } from "../LayoutContext";
 import { FilamentData, getOpacityFromColor } from "../Filaments";
 import { emitEvent, useEvent } from "../EventHub";
 import { IComponentProjectData } from "../ExportProject";
+import { ValidateHEX } from "../Validations";
 
 export function Sidebar(props: IComponentProjectData) {
 	const layoutManager = useContext(LayoutContext);
@@ -53,7 +54,8 @@ export function Sidebar(props: IComponentProjectData) {
 								type="color"
 								value={filamentToAdd.color}
 								onChange={(e) => {
-									setFilamentToAdd((old) => ({ ...old, color: e.target.value }));
+									if (ValidateHEX(e.target.value))
+										setFilamentToAdd((old) => ({ ...old, color: e.target.value }));
 								}}
 							/>{" "}
 							<input
@@ -61,7 +63,8 @@ export function Sidebar(props: IComponentProjectData) {
 								placeholder="Hex Code"
 								value={filamentToAdd.color}
 								onChange={(e) => {
-									setFilamentToAdd((old) => ({ ...old, color: e.target.value }));
+									if (ValidateHEX(e.target.value))
+										setFilamentToAdd((old) => ({ ...old, color: e.target.value }));
 								}}
 							/>
 						</span>
