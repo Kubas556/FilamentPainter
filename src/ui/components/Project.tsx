@@ -57,6 +57,7 @@ export function Project(props: IComponentProjectData) {
 					className="image-input"
 				/>
 			</div>
+			<div className="h-divider"></div>
 			<div className="import-option-row">
 				<button
 					id="import-project"

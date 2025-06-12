@@ -123,44 +123,47 @@ function FillamentLayer({
 					</svg>
 				</div>
 				<span rel="name">{filamentData.name}</span>
-				<span rel="icon" onClick={() => setLocked(prev => !prev)}><LockIcon unlocked={!locked} /></span>
+				<span rel="icon" onClick={() => setLocked((prev) => !prev)}>
+					<LockIcon unlocked={!locked} />
+				</span>
 			</div>
-			{!locked && <div className="row">
-				<div className="list-item-group">
-					Colour: <div className="h-gap-small"></div>{" "}
-					<input
-						type="color"
-						value={filamentData.color}
-						onChange={(e) => {
-							if (ValidateHEX(e.target.value))
-								onDataChange({ ...filamentData, color: e.target.value });
-						}}
-					/>
+			{!locked && (
+				<div className="row color-props">
+					<div className="list-item-group">
+						Colour: <div className="h-gap-small"></div>{" "}
+						<input
+							type="color"
+							value={filamentData.color}
+							onChange={(e) => {
+								if (ValidateHEX(e.target.value)) onDataChange({ ...filamentData, color: e.target.value });
+							}}
+						/>
+					</div>
+					<div className="h-gap"></div>
+					<div className="list-item-group">
+						Opacity: <div className="h-gap-small"></div>{" "}
+						<input
+							type="number"
+							step="0.01"
+							min="0"
+							max="5"
+							value={filamentData.opacity.toFixed(2)}
+							onChange={(e) => {
+								onDataChange({ ...filamentData, opacity: parseFloat(e.target.value) });
+							}}
+							className="filament-layer-opacity"
+						/>
+					</div>
 				</div>
-				<div className="h-gap"></div>
-				<div className="list-item-group">
-					Opacity: <div className="h-gap-small"></div>{" "}
-					<input
-						type="number"
-						step="0.01"
-						min="0"
-						max="5"
-						value={filamentData.opacity.toFixed(2)}
-						onChange={(e) => {
-							onDataChange({ ...filamentData, opacity: parseFloat(e.target.value) });
-						}}
-						className="filament-layer-opacity"
-					/>
-				</div>
-			</div>}
-			<div className="row">
-				Layer Height:
+			)}
+			<div className="row layer-height-slider-container">
+				<span className="label">Layer Height:</span>
 				<div className="h-gap-small"></div>
 				<input
 					type="range"
 					min="0.00"
 					max="2"
-					style={{ "accentColor": filamentData.color }}
+					style={{ "--accent-color": filamentData.color } as any}
 					step={projectConfig.layerHeight}
 					value={filamentData.layerHeight}
 					onChange={(e) => {
@@ -169,18 +172,20 @@ function FillamentLayer({
 					className="layer-height-slider"
 				/>
 				<div className="h-gap"></div>
-				<input
-					type="number"
-					min="0.00"
-					max="2"
-					step="0.01"
-					value={filamentData.layerHeight}
-					onChange={(e) => {
-						onDataChange({ ...filamentData, layerHeight: parseFloat(e.target.value) });
-					}}
-					className="layer-height-number"
-				/>
-				<div className="h-gap-small"></div> mm
+				<div style={{ display: "flex", alignItems: "center" }}>
+					<input
+						type="number"
+						min="0.00"
+						max="2"
+						step="0.01"
+						value={filamentData.layerHeight}
+						onChange={(e) => {
+							onDataChange({ ...filamentData, layerHeight: parseFloat(e.target.value) });
+						}}
+						className="layer-height-number"
+					/>
+					<div className="h-gap-small"></div> mm
+				</div>
 			</div>
 			<button className="delete-layer-button" onClick={onDelete}>
 				Delete

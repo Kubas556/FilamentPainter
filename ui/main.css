@@ -353,7 +353,7 @@ input[type="file"]::file-selector-button:focus {
 
 .filament-list-item {
     background-color: #333;
-    padding: 1rem;
+    padding: 0.5rem;
     display: flex;
     flex-direction: column;
     margin: 0.3125rem 0;
@@ -386,6 +386,28 @@ input[type="file"]::file-selector-button:focus {
 
     input[type="range"] {
         min-width: 5rem;
+        accent-color: var(--accent-color);
+        background-color: transparent;
+        border-color: transparent;
+    }
+
+    input[type="range"]::-moz-range-track {
+        background-color: currentColor;
+        border-radius: 1rem;
+        height: 0.4rem;
+    }
+
+    input[type="range"]::-moz-range-progress {
+        background-color: var(--accent-color);
+        border-radius: 1rem;
+        height: 0.4rem;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+        background-color: var(--accent-color);
+        border: 0.16rem solid var(--accent-color);
+        border-radius: 100%;
+        box-shadow: 0px 0px 5px -2px black;
     }
 
     input[type="text"] {
@@ -409,10 +431,31 @@ input[type="file"]::file-selector-button:focus {
         justify-content: flex-end;
     }
 
+    #draggable-list {
+        display: flex;
+        gap: 0.5rem;
+        flex-direction: row;
+        height: 100%;
+        min-height: 18rem;
+    }
+
+    #layers-section .filament-list-item .layer-height-slider {
+        writing-mode: sideways-lr;
+        flex: 1;
+    }
+
+    #layers-section .filament-list-item .layer-height-slider-container {
+        flex-direction: column;
+        flex: 1;
+    }
+
+    #layers-section .filament-list-item .layer-height-slider-container .label {
+        display: none;
+    }
+
     #layers-section .filament-list-item.draggable-item {
 
-        .row:nth-child(2),
-        .row:nth-child(3) {
+        .row.color-props, span[rel="icon"] {
             display: none;
         }
     }
