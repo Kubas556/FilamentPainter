@@ -8,6 +8,7 @@
 		"dev": "vite"
 	},
 	"dependencies": {
+		"react-aria-components": "^1.10.1",
 		"golden-layout": "^2.6.0",
 		"react": "^19.1.0",
 		"react-dom": "^19.1.0"

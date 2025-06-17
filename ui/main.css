@@ -31,7 +31,7 @@ header {
 }
 
 .preview-canvas-container {
-    display: flex; 
+    display: flex;
     height: 100%;
 }
 
@@ -59,7 +59,8 @@ header {
     font-weight: normal;
 }
 
-.sidebar-list, #existing-filament-list {
+.sidebar-list,
+#existing-filament-list {
     padding: 0;
 }
 
@@ -70,13 +71,22 @@ header {
     overflow: hidden;
 }
 
-#sidebar, #project-section, #layers-section, #export-section {
+.layers-section-container {
+    container: layers/size;
+    width: 100%;
+    height: 100%;
+}
+
+#sidebar,
+#project-section,
+#layers-section,
+#export-section {
     display: flex;
     gap: 1rem;
     flex-direction: column;
     background-color: #272727;
     padding: 1rem;
-    height: calc(100vh - 2.5rem);
+    height: calc(100% - 2rem);
     overflow-y: auto;
     border-right: 1px solid #333;
 
@@ -100,6 +110,11 @@ header {
     a:hover {
         background-color: #333;
     }
+
+    h4 {
+        margin: 0 0 0.5rem 0;
+        color: #ccc;
+    }
 }
 
 .preview-window {
@@ -117,11 +132,15 @@ header {
 }
 
 .preview-window {
-    -ms-overflow-style: none;  /* Internet Explorer 10+ */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;
+    /* Internet Explorer 10+ */
+    scrollbar-width: none;
+    /* Firefox */
 }
+
 .preview-window::-webkit-scrollbar {
-    display: none;  /* Safari and Chrome */
+    display: none;
+    /* Safari and Chrome */
 }
 
 .preview-canvas {
@@ -149,18 +168,22 @@ header {
 }
 
 .drag-handle {
-    cursor: grab;
     margin-right: 0.625rem;
-    display: inline-block; /* To align with the text */
-    vertical-align: middle; /* To vertically align with the text */
+    display: inline-block;
+    /* To align with the text */
     font-size: 1rem;
     border-radius: 0.325rem;
+
+    svg {
+        display: block;
+    }
 }
 
 .row {
     display: flex;
     align-items: center;
-    margin-top: 0.3125rem; /* Add some space between rows */
+    margin-top: 0.3125rem;
+    /* Add some space between rows */
 }
 
 .row span {
@@ -178,7 +201,8 @@ header {
 }
 
 .row input[type="number"] {
-    width: 4rem; /* Adjust width as needed */
+    width: 4rem;
+    /* Adjust width as needed */
 }
 
 input[type="number"] {
@@ -209,7 +233,7 @@ h2 {
 }
 
 h3 {
-    margin: 0.5rem 0;
+    margin: 0;
     color: #ccc;
 }
 
@@ -220,15 +244,21 @@ h3 {
 
 .input-number {
     width: 4rem;
-    background-color: #444; /* Lighter background for text boxes */
+    background-color: #444;
+    /* Lighter background for text boxes */
     color: #ccc;
-    border: 1px solid #555; /* Lighter border */
+    border: 1px solid #555;
+    /* Lighter border */
 }
 
-input, select, textarea {
-    background-color: #444; /* Lighter background for text boxes */
+input,
+select,
+textarea {
+    background-color: #444;
+    /* Lighter background for text boxes */
     color: #ccc;
-    border: 1px solid #555; /* Lighter border */
+    border: 1px solid #555;
+    /* Lighter border */
 }
 
 select option {
@@ -237,8 +267,10 @@ select option {
 }
 
 button {
-    background-color: rgba(143, 143, 143, 0.49); /* Dark background with blue tint */
-    color: #e1e1e1; /* Soft blue text */
+    background-color: rgba(143, 143, 143, 0.49);
+    /* Dark background with blue tint */
+    color: #e1e1e1;
+    /* Soft blue text */
     padding: 10px 20px;
     border-radius: 6px;
     border: none;
@@ -248,22 +280,32 @@ button {
 }
 
 button:hover {
-    background-color: #6c6c6c; /* Darker blue on hover */
-    color: #e6e6e6; /* Lighter blue on hover */
+    background-color: #6c6c6c;
+    /* Darker blue on hover */
+    color: #e6e6e6;
+    /* Lighter blue on hover */
 }
 
 button:active {
-    background-color: #404040; /* Darker blue on hover */
-    color: #b1b1b1; /* Lighter blue on hover */
+    background-color: #404040;
+    /* Darker blue on hover */
+    color: #b1b1b1;
+    /* Lighter blue on hover */
 }
 
 .image-input {
-    background-color: #333; /* Dark background color */
-    color: #eee; /* Light text color */
-    border: 1px solid #555; /* Darker border */
-    padding: 8px 12px; /* Add some padding for better spacing */
-    border-radius: 4px; /* Optional: Rounded corners */
-    cursor: pointer; /* Indicate it's clickable */
+    background-color: #333;
+    /* Dark background color */
+    color: #eee;
+    /* Light text color */
+    border: 1px solid #555;
+    /* Darker border */
+    padding: 8px 12px;
+    /* Add some padding for better spacing */
+    border-radius: 4px;
+    /* Optional: Rounded corners */
+    cursor: pointer;
+    /* Indicate it's clickable */
 }
 
 /* Optional: Style the hover state */
@@ -274,19 +316,29 @@ button:active {
 
 /* Optional: Style the focus state */
 .image-input:focus {
-    outline: none; /* Remove default focus outline */
-    border-color: #777; /* Slightly lighter border on focus */
-    box-shadow: 0 0 5px rgba(119, 119, 119, 0.5); /* Optional: Add a subtle focus shadow */
+    outline: none;
+    /* Remove default focus outline */
+    border-color: #777;
+    /* Slightly lighter border on focus */
+    box-shadow: 0 0 5px rgba(119, 119, 119, 0.5);
+    /* Optional: Add a subtle focus shadow */
 }
 
 input {
     font-size: 1rem;
 }
 
+*[draggable] {
+    cursor: grab;
+}
+
 input[type="file"]::file-selector-button {
-    background-color: #595959; /* Dark background for the button */
-    color: #eee; /* Light text color */
-    border: 1px solid #555; /* Darker border */
+    background-color: #595959;
+    /* Dark background for the button */
+    color: #eee;
+    /* Light text color */
+    border: 1px solid #555;
+    /* Darker border */
     padding: 8px 12px;
     border-radius: 4px;
     cursor: pointer;
@@ -306,18 +358,127 @@ input[type="file"]::file-selector-button:focus {
 
 .filament-list-item {
     background-color: #333;
-    padding: 1rem;
+    padding: 0.5rem;
     display: flex;
     flex-direction: column;
     margin: 0.3125rem 0;
     font-size: 1rem;
     gap: 0.5rem;
     border-radius: 0.625rem;
+
+    .filament-list-item-header {
+        display: flex;
+        flex-direction: row;
+
+        span[rel="name"] {
+            flex: 1
+        }
+
+        span[rel="icon"] {
+            padding-left: 0.625rem;
+            cursor: pointer;
+        }
+
+        span {
+            text-align: end;
+            align-content: center;
+        }
+    }
+
+    .list-item-group {
+        display: flex;
+    }
+
+    input[type="range"] {
+        min-width: 5rem;
+        accent-color: var(--accent-color);
+        background-color: transparent;
+        border-color: transparent;
+    }
+
+    input[type="range"]::-moz-range-track {
+        background-color: currentColor;
+        border-radius: 1rem;
+        height: 0.4rem;
+    }
+
+    input[type="range"]::-moz-range-progress {
+        background-color: var(--accent-color);
+        border-radius: 1rem;
+        height: 0.4rem;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+        background-color: var(--accent-color);
+        border: 0.16rem solid var(--accent-color);
+        border-radius: 100%;
+        box-shadow: 0px 0px 5px -2px black;
+    }
+
+    input[type="text"] {
+        width: 100%;
+        min-width: 5rem;
+    }
+
+    input[type="color"] {
+        aspect-ratio: 1;
+    }
+
+    .row {
+        flex-wrap: wrap;
+    }
+}
+
+@container layers not (max-aspect-ratio: 1) {
+    #layers-section {
+        flex-direction: row-reverse;
+        align-items: end;
+        justify-content: flex-end;
+    }
+
+    #draggable-list {
+        display: flex;
+        gap: 0.5rem;
+        flex-direction: row;
+        height: 100%;
+        min-height: 18rem;
+    }
+
+    #layers-section .draggable-list .filament-list-item{
+        min-height: 18rem;
+    }
+
+    #layers-section .filament-list-item .layer-height-slider {
+        writing-mode: sideways-lr;
+        flex: 1;
+    }
+
+    #layers-section .filament-list-item .layer-height-slider-container {
+        flex-direction: column;
+        flex: 1;
+    }
+
+    #layers-section .filament-list-item .layer-height-slider-container .label {
+        display: none;
+    }
+
+    #layers-section .filament-list-item.draggable-item {
+
+        .row.color-props, span[rel="icon"] {
+            display: none;
+        }
+    }
 }
 
 .h-divider {
     width: 100%;
     height: 2px;
+    background-color: #9e9e9e;
+}
+
+.v-divider {
+    height: 100%;
+    width: 2px;
     background-color: #9e9e9e;
 }
 
@@ -347,19 +508,19 @@ select {
 }
 
 button:disabled,
-button[disabled]{
+button[disabled] {
     background-color: #333;
     color: #ccc;
 }
 
 button:disabled,
-button[disabled]:hover{
+button[disabled]:hover {
     background-color: #333;
     color: #ccc;
 }
 
 button:disabled,
-button[disabled]:active{
+button[disabled]:active {
     background-color: #333;
     color: #ccc;
 }

@@ -14,7 +14,7 @@ import { IComponentProjectData } from "../ExportProject";
 import { getImageFromStringAsync } from "../../Upload";
 
 const defaultLayout: LayoutConfig = {
-	header: { popout: false },
+	header: { popout: false, maximise: false },
 	settings: { tabControlOffset: 20 },
 	dimensions: { borderWidth: 1 },
 	root: {

@@ -4,6 +4,19 @@ import { FilamentData, getOpacityFromColor } from "../Filaments";
 import { emitEvent, useEvent } from "../EventHub";
 import { IComponentProjectData } from "../ExportProject";
 
+import {
+	ColorArea,
+	ColorField,
+	ColorPicker,
+	ColorSlider,
+	ColorThumb,
+	Input,
+	Label,
+	parseColor,
+	SliderOutput,
+	SliderTrack,
+} from "react-aria-components";
+
 export function Sidebar(props: IComponentProjectData) {
 	const layoutManager = useContext(LayoutContext);
 	const [filamentToAdd, setFilamentToAdd] = useState<FilamentData>({
@@ -12,6 +25,8 @@ export function Sidebar(props: IComponentProjectData) {
 		opacity: 0.1,
 		layerHeight: props.projectConfig.layerHeight,
 	});
+	const [_, setFilamentCounter] = useState(1);
+	const [selectedColor, setSelectedColor] = useState(parseColor("#000000"));
 
 	if (!layoutManager) {
 		return <div>Layout manager not found</div>;
@@ -49,21 +64,29 @@ export function Sidebar(props: IComponentProjectData) {
 					<div className="row">
 						<span>
 							Colour:{" "}
-							<input
-								type="color"
-								value={filamentToAdd.color}
-								onChange={(e) => {
-									setFilamentToAdd((old) => ({ ...old, color: e.target.value }));
-								}}
-							/>{" "}
-							<input
-								type="text"
-								placeholder="Hex Code"
-								value={filamentToAdd.color}
-								onChange={(e) => {
-									setFilamentToAdd((old) => ({ ...old, color: e.target.value }));
-								}}
-							/>
+							<div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+								<ColorPicker
+									value={selectedColor.toString("hsl")}
+									onChange={(color) => {
+										setFilamentToAdd((old) => ({ ...old, color: color.toString("hex") }));
+										setSelectedColor(color);
+									}}
+								>
+									<ColorArea colorSpace="hsb" xChannel="saturation" yChannel="brightness">
+										<ColorThumb />
+									</ColorArea>
+									<ColorSlider channel="hue">
+										<Label />
+										<SliderOutput />
+										<SliderTrack>
+											<ColorThumb />
+										</SliderTrack>
+									</ColorSlider>
+									<ColorField>
+										<Input />
+									</ColorField>
+								</ColorPicker>
+							</div>
 						</span>
 					</div>
 					<div className="row">
@@ -87,6 +110,11 @@ export function Sidebar(props: IComponentProjectData) {
 						id="add-item-button-new"
 						onClick={() => {
 							emitEvent(layoutManager, "layerAdded", filamentToAdd);
+							setFilamentCounter((old) => {
+								const increased = old + 1;
+								setFilamentToAdd((old) => ({ ...old, name: `Filament ${increased}` }));
+								return increased;
+							});
 						}}
 					>
 						Add Filament Layer
