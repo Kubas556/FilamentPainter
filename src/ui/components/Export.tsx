@@ -152,6 +152,7 @@ export function Export(props: IComponentProjectData) {
 			<textarea
 				id="instructions"
 				rows={30}
+				readOnly
 				value={instructions}
 				onChange={(e) => {
 					setInstructions(e.target.value);
