@@ -84,11 +84,48 @@ export function Export(props: IComponentProjectData) {
 	return (
 		<section id="export-section">
 			<h3>Export options</h3>
-			<div>
-				<label>Image Resolution:</label>
-				w <input className="input-number" type="number" id="image-resolution-x" readOnly value={imageResolution.x} /> px
-				by h <input className="input-number" type="number" id="image-resolution-y" readOnly value={imageResolution.y} />{" "}
-				px
+			<div className="row" style={{ gap: "1rem" }}>
+				<div>
+					<h4>Image Resolution:</h4>
+					<div>
+						width:{" "}
+						<input className="input-number" type="number" id="image-resolution-x" readOnly value={imageResolution.x} />{" "}
+						px
+					</div>
+					<div>
+						height:{" "}
+						<input className="input-number" type="number" id="image-resolution-y" readOnly value={imageResolution.y} />{" "}
+						px
+					</div>
+				</div>
+				<div className="v-divider" />
+				<div>
+					<h4>Physical Size:</h4>
+					<div>
+						width:{" "}
+						<input
+							className="input-number"
+							type="number"
+							id="physical-x"
+							min="1"
+							value={physicalSize.x}
+							onChange={handlePhysicalSizeChange}
+						/>{" "}
+						mm
+					</div>{" "}
+					<div>
+						height:{" "}
+						<input
+							className="input-number"
+							type="number"
+							id="physical-y"
+							min="1"
+							value={physicalSize.y}
+							onChange={handlePhysicalSizeChange}
+						/>{" "}
+						mm
+					</div>
+				</div>
 			</div>
 			<div className="row">
 				<label>Detail Size: </label>
@@ -105,29 +142,10 @@ export function Export(props: IComponentProjectData) {
 				<div className="h-gap-small"></div>
 				mm
 			</div>
-			<div>
-				<label>Physical Size:</label>w{" "}
-				<input
-					className="input-number"
-					type="number"
-					id="physical-x"
-					min="1"
-					value={physicalSize.x}
-					onChange={handlePhysicalSizeChange}
-				/>{" "}
-				mm by h{" "}
-				<input
-					className="input-number"
-					type="number"
-					id="physical-y"
-					min="1"
-					value={physicalSize.y}
-					onChange={handlePhysicalSizeChange}
-				/>{" "}
-				mm
-			</div>
-			<span id="file-size-estimate">{`Estimated file size: ${(imageResolution.x * imageResolution.y * 200) / 1000000
-				} MB`}</span>
+			<span id="file-size-estimate">{`Estimated file size: ${
+				(imageResolution.x * imageResolution.y * 200) / 1000000
+			} MB`}</span>
+			<div className="h-divider"></div>
 			<div className="inline-div">
 				<h3>Print Instructions</h3>
 			</div>

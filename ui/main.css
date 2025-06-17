@@ -110,6 +110,11 @@ header {
     a:hover {
         background-color: #333;
     }
+
+    h4 {
+        margin: 0 0 0.5rem 0;
+        color: #ccc;
+    }
 }
 
 .preview-window {
@@ -228,7 +233,7 @@ h2 {
 }
 
 h3 {
-    margin: 0.5rem 0;
+    margin: 0;
     color: #ccc;
 }
 
@@ -439,6 +444,10 @@ input[type="file"]::file-selector-button:focus {
         min-height: 18rem;
     }
 
+    #layers-section .draggable-list .filament-list-item{
+        min-height: 18rem;
+    }
+
     #layers-section .filament-list-item .layer-height-slider {
         writing-mode: sideways-lr;
         flex: 1;
@@ -464,6 +473,12 @@ input[type="file"]::file-selector-button:focus {
 .h-divider {
     width: 100%;
     height: 2px;
+    background-color: #9e9e9e;
+}
+
+.v-divider {
+    height: 100%;
+    width: 2px;
     background-color: #9e9e9e;
 }
 
