@@ -439,7 +439,7 @@ input[type="file"]::file-selector-button:focus {
     #draggable-list {
         display: flex;
         gap: 0.5rem;
-        flex-direction: row;
+        flex-direction: row-reverse;
         height: 100%;
         min-height: 18rem;
     }

@@ -29,7 +29,7 @@ export function Layers(props: IComponentProjectData) {
 				return prev;
 			}
 
-			return [...prev, layer];
+			return [layer, ...prev];
 		});
 	});
 

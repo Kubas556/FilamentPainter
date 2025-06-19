@@ -25,6 +25,7 @@ export function Sidebar(props: IComponentProjectData) {
 		opacity: 0.1,
 		layerHeight: props.projectConfig.layerHeight,
 	});
+	const [recentFilaments, setRecentFilaments] = useState<FilamentData[]>(props.filamentLayers);
 	const [_, setFilamentCounter] = useState(1);
 	const [selectedColor, setSelectedColor] = useState(parseColor("#000000"));
 
@@ -115,37 +116,82 @@ export function Sidebar(props: IComponentProjectData) {
 								setFilamentToAdd((old) => ({ ...old, name: `Filament ${increased}` }));
 								return increased;
 							});
+							setRecentFilaments((old) => {
+								old.push(structuredClone(filamentToAdd));
+								return [...old];
+							});
 						}}
 					>
 						Add Filament Layer
 					</button>
 				</li>
-
-				{
-					//TODO: Implement existing filament selection
-					/*<li className="filament-list-item">
-					<span>Choose Existing Filament</span>
-					<select id="existing-filament-selection">
-						<option value="None">Choose an existing filament</option>
-					</select>
-					<button className="filament-add-button" id="add-item-button-existing">
-						Add Filament Layer
-					</button>
-				</li>*/
-				}
 			</ul>
-			{
-				//TODO: Implement filament list
-				/*<ul id="existing-filament-list"></ul>
-
-			<button id="update-painting-button" disabled>
-				Update Painting
-			</button>
-			<div>
-				<input type="checkbox" checked id="auto-update-checkbox" disabled onChange={() => {}} />
-				Automatically Update Painting
-			</div>*/
-			}
+			<h3>Recently Created Filaments</h3>
+			<ul className="sidebar-list">
+				{recentFilaments.map((filament) => (
+					<FilamentView
+						key={filament.name}
+						filamentData={filament}
+						onAdd={(filamentData) => {
+							const newFilament = { ...filamentData, name: filamentToAdd.name };
+							emitEvent(layoutManager, "layerAdded", newFilament);
+							setFilamentCounter((old) => {
+								const increased = old + 1;
+								setFilamentToAdd((old) => ({ ...old, name: `Filament ${increased}` }));
+								return increased;
+							});
+						}}
+						onDelete={(id) => {
+							setRecentFilaments((old) => old.filter((f) => f.name !== id));
+						}}
+					/>
+				))}
+			</ul>
 		</section>
+	);
+}
+
+function FilamentView({
+	filamentData,
+	onAdd,
+	onDelete,
+}: {
+	filamentData: FilamentData;
+	onAdd: (data: FilamentData) => void;
+	onDelete: (id: string) => void;
+}) {
+	return (
+		<li className="filament-list-item">
+			<div className="filament-list-item-header">
+				<span rel="name">{filamentData.name}</span>
+			</div>
+			<div className="row color-props">
+				<div className="list-item-group">
+					Colour: <div className="h-gap-small"></div> <input type="color" value={filamentData.color} readOnly />
+				</div>
+				<div className="h-gap"></div>
+				<div className="list-item-group">
+					Opacity: <div className="h-gap-small"></div>{" "}
+					<input
+						type="number"
+						step="0.01"
+						min="0"
+						max="5"
+						value={filamentData.opacity.toFixed(2)}
+						className="filament-layer-opacity"
+						readOnly
+					/>
+				</div>
+			</div>
+			<div className="row">
+				<button className="delete-layer-button" onClick={() => onDelete(filamentData.name)}>
+					Delete
+				</button>
+				<div className="h-gap" />
+				<button className="delete-layer-button" onClick={() => onAdd(filamentData)}>
+					Add
+				</button>
+			</div>
+		</li>
 	);
 }
