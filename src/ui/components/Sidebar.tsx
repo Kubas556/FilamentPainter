@@ -92,15 +92,15 @@ export function Sidebar(props: IComponentProjectData) {
 					</div>
 					<div className="row">
 						<span>
-							Opacity:{" "}
+							TD:{" "}
 							<input
 								type="number"
 								step="0.01"
 								min="0"
-								max="5"
-								value={filamentToAdd.opacity.toFixed(2)}
+								max="50"
+								value={(filamentToAdd.opacity * 10).toFixed(2)}
 								onChange={(e) => {
-									setFilamentToAdd((old) => ({ ...old, opacity: parseFloat(e.target.value) }));
+									setFilamentToAdd((old) => ({ ...old, opacity: parseFloat(e.target.value) / 10 }));
 								}}
 							/>{" "}
 							mm
@@ -171,13 +171,13 @@ function FilamentView({
 				</div>
 				<div className="h-gap"></div>
 				<div className="list-item-group">
-					Opacity: <div className="h-gap-small"></div>{" "}
+					TD: <div className="h-gap-small"></div>{" "}
 					<input
 						type="number"
 						step="0.01"
 						min="0"
-						max="5"
-						value={filamentData.opacity.toFixed(2)}
+						max="50"
+						value={(filamentData.opacity * 10).toFixed(2)}
 						className="filament-layer-opacity"
 						readOnly
 					/>

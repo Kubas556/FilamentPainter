@@ -32,7 +32,7 @@ header {
 
 .preview-canvas-container {
     display: flex;
-    height: 100%;
+    height: calc(100% - 2px);
 }
 
 .page-header {
