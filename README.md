@@ -1,6 +1,6 @@
 # Filament Painter
 
-A free colour lithophane generator hosted at https://painter.vec4.ca/ 
+Url: https://kubas556.github.io/FilamentPainter/build/
 
 Powered by WebGL2.
 
@@ -19,9 +19,9 @@ Powered by WebGL2.
 
 The main component of this entire app is in https://github.com/hpnrep6/FilamentPainter/blob/master/src/gl/compute/Heights.ts
 
-To determine the colour at a layer, a brute force method is used by starting from layer 0 and then incrementing the height for each layer while applying the appropriate colour blending function. 
+To determine the colour at a layer, a brute force method is used by starting from layer 0 and then incrementing the height for each layer while applying the appropriate colour blending function.
 
-Currently, the colour blending uses an exponential curve of (e^(-2x) - e^-2) / (1 - e^-2), which gives a pretty good approximation of how filament actually behaves. 
+Currently, the colour blending uses an exponential curve of (e^(-2x) - e^-2) / (1 - e^-2), which gives a pretty good approximation of how filament actually behaves.
 
 Since everything is run on the GPU, this brute force computation runs relatively fast.
 
