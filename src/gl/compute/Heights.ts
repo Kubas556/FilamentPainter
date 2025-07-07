@@ -149,12 +149,12 @@ void main() {
 
 const greyscaleMaxHeight = `
     float height = max(colour.r, max(colour.g, colour.b));
-    height *= heightRange[1];
+    height = heightRange[0] + height * (heightRange[1] - heightRange[0]);
 `;
 
 const greyscaleLuminanceHeight = `
     float height = 0.299 * colour.r + 0.587 * colour.g + 0.114 * colour.b;
-    height *= heightRange[1];
+    height = heightRange[0] + height * (heightRange[1] - heightRange[0]);
 `;
 
 const nearestMatchHieight = `
