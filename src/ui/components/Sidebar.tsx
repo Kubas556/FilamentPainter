@@ -19,14 +19,14 @@ import {
 
 export function Sidebar(props: IComponentProjectData) {
 	const layoutManager = useContext(LayoutContext);
+	const [filamentCounter, setFilamentCounter] = useState(1);
 	const [filamentToAdd, setFilamentToAdd] = useState<FilamentData>({
 		color: "#000000",
-		name: "Filament 1",
+		name: `Filament ${filamentCounter}`,
 		opacity: 0.1,
 		layerHeight: props.projectConfig.layerHeight,
 	});
 	const [recentFilaments, setRecentFilaments] = useState<FilamentData[]>(props.filamentLayers);
-	const [_, setFilamentCounter] = useState(1);
 	const [selectedColor, setSelectedColor] = useState(parseColor("#000000"));
 
 	if (!layoutManager) {
@@ -110,15 +110,11 @@ export function Sidebar(props: IComponentProjectData) {
 						className="filament-add-button"
 						id="add-item-button-new"
 						onClick={() => {
-							emitEvent(layoutManager, "layerAdded", filamentToAdd);
-							setFilamentCounter((old) => {
-								const increased = old + 1;
-								setFilamentToAdd((old) => ({ ...old, name: `Filament ${increased}` }));
-								return increased;
-							});
+							emitEvent(layoutManager, "layerAdded", structuredClone(filamentToAdd));
+							setFilamentToAdd((old) => ({ ...old, name: `Filament ${filamentCounter + 1}` }));
+							setFilamentCounter(filamentCounter + 1);
 							setRecentFilaments((old) => {
-								old.push(structuredClone(filamentToAdd));
-								return [...old];
+								return [...old, structuredClone(filamentToAdd)];
 							});
 						}}
 					>
@@ -134,12 +130,9 @@ export function Sidebar(props: IComponentProjectData) {
 						filamentData={filament}
 						onAdd={(filamentData) => {
 							const newFilament = { ...filamentData, name: filamentToAdd.name };
-							emitEvent(layoutManager, "layerAdded", newFilament);
-							setFilamentCounter((old) => {
-								const increased = old + 1;
-								setFilamentToAdd((old) => ({ ...old, name: `Filament ${increased}` }));
-								return increased;
-							});
+							emitEvent(layoutManager, "layerAdded", structuredClone(newFilament));
+							setFilamentToAdd((old) => ({ ...old, name: `Filament ${filamentCounter + 1}` }));
+							setFilamentCounter(filamentCounter + 1);
 						}}
 						onDelete={(id) => {
 							setRecentFilaments((old) => old.filter((f) => f.name !== id));
