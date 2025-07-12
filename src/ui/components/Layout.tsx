@@ -73,7 +73,6 @@ export function Layout(/*{ container, eventHub, state }: ILyoutProps*/) {
 	});
 
 	useLayoutEvent(layoutMan, "projectLoaded", (data) => {
-		console.log("Project loaded:", data);
 		getImageFromStringAsync(data.image).then((imageGeneratedResult) => {
 			if (imageGeneratedResult.imageElement)
 				setProjectData({

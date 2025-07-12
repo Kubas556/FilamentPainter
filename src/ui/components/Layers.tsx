@@ -72,7 +72,6 @@ export function Layers(props: IComponentProjectData) {
 									}
 								}}
 								onDelete={() => {
-									console.log("Delete layer", layer.name);
 									setFilamentLayers((prev) => prev.filter((l) => l.name !== layer.name));
 								}}
 								onDataChange={(newData) => {
