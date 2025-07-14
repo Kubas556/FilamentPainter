@@ -29,6 +29,12 @@ export function Sidebar(props: IComponentProjectData) {
 	const [recentFilaments, setRecentFilaments] = useState<FilamentData[]>(props.filamentLayers);
 	const [selectedColor, setSelectedColor] = useState(parseColor("#000000"));
 
+	const store = props.filamentStore;
+
+	useEffect(() => {
+		console.log("sidebar: " + store?.stored);
+	}, [store?.stored])
+
 	if (!layoutManager) {
 		return <div>Layout manager not found</div>;
 	}
@@ -46,6 +52,7 @@ export function Sidebar(props: IComponentProjectData) {
 
 	return (
 		<section id="sidebar">
+			<button onClick={() => store?.setStored(["sdfdsf"])}>add</button>
 			<h3>Add New Filament Layer</h3>
 			<ul className="sidebar-list">
 				<li className="filament-list-item">

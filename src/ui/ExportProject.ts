@@ -1,6 +1,7 @@
 import { IComputedData, IExportConfig, IProjectConfig } from "./EventHub.js";
 import { downloadTextFile } from "./Export.js";
 import { FilamentData } from "./Filaments.js";
+import { IFilemantStore } from "./filamentStore.js";
 
 export interface IComponentProjectData {
 	image?: string;
@@ -9,6 +10,7 @@ export interface IComponentProjectData {
 	filamentLayers: FilamentData[];
 	sourceImage?: HTMLImageElement;
 	computedData?: IComputedData;
+	filamentStore?: IFilemantStore;
 }
 
 export interface ExportedProjectData {

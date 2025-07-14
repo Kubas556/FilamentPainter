@@ -1,4 +1,4 @@
-import { ComponentContainer, ComponentItem, EventHub, GoldenLayout, LayoutConfig, Stack } from "golden-layout";
+import { ComponentContainer, ComponentItem, EventHub, GoldenLayout, LayoutConfig, LayoutManager, Stack } from "golden-layout";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Test } from "./Test";
@@ -12,6 +12,7 @@ import { LayoutContext } from "../LayoutContext";
 import { useLayoutEvent } from "../EventHub";
 import { IComponentProjectData } from "../ExportProject";
 import { getImageFromStringAsync } from "../../Upload";
+import { FilamentStore } from "../filamentStore";
 
 const defaultLayout: LayoutConfig = {
 	header: { popout: false, maximise: false },
@@ -145,11 +146,16 @@ export function Layout(/*{ container, eventHub, state }: ILyoutProps*/) {
 				`}
 			</style>
 			{layoutMan &&
-				Object.keys(componentContainers).map((name) => {
-					const Component = componentTypes[name];
-					return createPortal(<Component {...projectData} />, componentContainers[name].element);
-				})}
+				<RenderComponentsWithStore components={componentContainers} layoutMan={layoutMan} projectData={projectData} />}
 			<div style={{ width: "100%", height: "100%" }} ref={layoutRoot} />
 		</LayoutContext.Provider>
 	);
+}
+
+function RenderComponentsWithStore({ layoutMan, components, projectData }: { layoutMan: LayoutManager, projectData: IComponentProjectData, components: { [name: string]: ComponentContainer } }) {
+	const store = FilamentStore(["init"]);
+	return (Object.keys(components).map((name) => {
+		const Component = componentTypes[name];
+		return createPortal(<Component {...projectData} filamentStore={store} />, components[name].element);
+	}))
 }

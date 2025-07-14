@@ -23,9 +23,15 @@ export function ImagePreview(props: IComponentProjectData) {
 
 	const imageRef = useRef<HTMLCanvasElement>(null);
 
+	const store = props.filamentStore;
+
 	if (!layoutManager) {
 		return <div>Layout manager not found</div>;
 	}
+
+	useEffect(() => {
+		console.log("preview: " + store?.stored)
+	}, [store?.stored])
 
 	useEffect(() => {
 		emitEvent(layoutManager, "computedDataChanged", structuredClone({ computedResult, filaments }));
