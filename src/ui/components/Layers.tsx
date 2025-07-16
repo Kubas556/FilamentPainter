@@ -1,15 +1,16 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { LayoutContext } from "../LayoutContext";
-import { emitEvent, IProjectConfig, useEvent } from "../EventHub";
+import { IProjectConfig } from "../EventHub";
 import { FilamentData } from "../Filaments";
 import { IComponentProjectData } from "../ExportProject";
 import { ValidateHEX } from "../Validations";
 import { LockIcon } from "./icons/Lock";
+import { useSyncState } from "../useSyncState";
 
 export function Layers(props: IComponentProjectData) {
 	const layoutManager = useContext(LayoutContext);
-	const [filamentLayers, setFilamentLayers] = useState<FilamentData[]>(props.filamentLayers);
-	const [projectConfig, setProjectConfig] = useState<IProjectConfig>(props.projectConfig);
+	const [filamentLayers, setFilamentLayers] = useSyncState("FilamentLayers", props.filamentLayers);
+	const [projectConfig, setProjectConfig] = useSyncState("ProjectConfig", props.projectConfig);
 
 	const [draggedItem, setDraggedItem] = useState<number | null>(null);
 	const ulRef = useRef<HTMLUListElement>(null);
@@ -21,25 +22,6 @@ export function Layers(props: IComponentProjectData) {
 	const handleDragEnd = (e: React.DragEvent<HTMLUListElement>) => {
 		setDraggedItem(null);
 	};
-
-	useEvent("layerAdded", (layer) => {
-		setFilamentLayers((prev) => {
-			if (prev.some((l) => l.name === layer.name)) {
-				alert(`Layer with name ${layer.name} already exists.`);
-				return prev;
-			}
-
-			return [layer, ...prev];
-		});
-	});
-
-	useEvent("projectConfigChanged", (config) => {
-		setProjectConfig(config);
-	});
-
-	useEffect(() => {
-		emitEvent(layoutManager, "layersChanged", structuredClone({ data: filamentLayers }));
-	}, [filamentLayers]);
 
 	return (
 		<div className="layers-section-container">
@@ -67,7 +49,7 @@ export function Layers(props: IComponentProjectData) {
 										listCopy.splice(draggedItem, 1);
 										listCopy.splice(index, 0, draggingItemContent);
 
-										setFilamentLayers(listCopy);
+										setFilamentLayers((prev) => listCopy);
 										setDraggedItem(index);
 									}
 								}}

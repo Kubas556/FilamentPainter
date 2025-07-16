@@ -1,25 +1,28 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { LayoutContext } from "../LayoutContext";
-import { emitEvent, IExportConfig, IProjectConfig, useEvent } from "../EventHub";
+import { emitEvent } from "../EventHub";
 import { getComputeFunction } from "../../gl/compute/Heights";
 import { GLImage } from "../../gl/Image";
 import { FilamentData } from "../Filaments";
 import { Filament } from "../../Filament";
 import { getTopographyFunction, resizePaintImage } from "../UpdateImage";
 import { IComponentProjectData } from "../ExportProject";
+import { useSyncState } from "../useSyncState";
 
 export function ImagePreview(props: IComponentProjectData) {
 	const layoutManager = useContext(LayoutContext);
-	const [sourceImage, setSourceImage] = useState<HTMLImageElement | undefined>(props.sourceImage);
-	const [exportConfig, setExportConfig] = useState<IExportConfig>(props.exportConfig);
-	const [projectConfig, setProjectConfig] = useState<IProjectConfig>(props.projectConfig);
-	const [filamentLayers, setFilamentLayers] = useState<FilamentData[]>(props.filamentLayers);
+	const [sourceImage] = useSyncState("SourceImage", props.sourceImage);
+	const [exportConfig] = useSyncState("ExportConfig", props.exportConfig);
+	const [projectConfig] = useSyncState("ProjectConfig", props.projectConfig);
+	const [filamentLayers] = useSyncState("FilamentLayers", props.filamentLayers);
+
 	const [computedResult, setComputedResult] = useState<Float32Array<ArrayBuffer> | undefined>(
 		props.computedData?.computedResult,
 	);
 	const [filaments, setFilaments] = useState<Filament[]>(props.computedData?.filaments ?? []);
 
 	const [glImage, setGlImage] = useState<GLImage | undefined>();
+	const [ratio, setRatio] = useState<number | null>(null);
 
 	const imageRef = useRef<HTMLCanvasElement>(null);
 
@@ -30,24 +33,6 @@ export function ImagePreview(props: IComponentProjectData) {
 	useEffect(() => {
 		emitEvent(layoutManager, "computedDataChanged", structuredClone({ computedResult, filaments }));
 	}, [computedResult, filaments]);
-
-	useEvent("imageChanged", (image) => {
-		if (image.imageElement) {
-			setSourceImage(image.imageElement);
-		}
-	});
-
-	useEvent("layersChanged", (layers) => {
-		setFilamentLayers(layers.data);
-	});
-
-	useEvent("projectConfigChanged", (config) => {
-		setProjectConfig(config);
-	});
-
-	useEvent("exportConfigChanged", (config) => {
-		setExportConfig(config);
-	});
 
 	useEffect(() => {
 		if (imageRef.current && sourceImage && exportConfig && projectConfig) {
@@ -73,6 +58,7 @@ export function ImagePreview(props: IComponentProjectData) {
 
 				canvas.width = resized.width;
 				canvas.height = resized.height;
+				setRatio(resized.width / resized.height);
 
 				let filaments: FilamentData[] = [...filamentLayers].reverse(); //getFilamentListElements().reverse();
 				let layerHeight = projectConfig.baseLayerHeight;
@@ -121,8 +107,9 @@ export function ImagePreview(props: IComponentProjectData) {
 	return (
 		<div className="preview-container-observer">
 			<style>
-				{`
-				@container canvas (max-aspect-ratio: ${(imageRef.current?.width ?? 0) / (imageRef.current?.height ?? 0)}) {
+				{ratio !== null &&
+					`
+				@container canvas (max-aspect-ratio: ${ratio}) {
 					.preview-canvas-container {
 						flex-direction: column;
 					}

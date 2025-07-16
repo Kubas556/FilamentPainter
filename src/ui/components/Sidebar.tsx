@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { LayoutContext } from "../LayoutContext";
 import { FilamentData, getOpacityFromColor } from "../Filaments";
-import { emitEvent, useEvent } from "../EventHub";
 import { IComponentProjectData } from "../ExportProject";
 
 import {
@@ -16,6 +15,7 @@ import {
 	SliderOutput,
 	SliderTrack,
 } from "react-aria-components";
+import { useSyncState } from "../useSyncState";
 
 export function Sidebar(props: IComponentProjectData) {
 	const layoutManager = useContext(LayoutContext);
@@ -28,14 +28,28 @@ export function Sidebar(props: IComponentProjectData) {
 	});
 	const [recentFilaments, setRecentFilaments] = useState<FilamentData[]>(props.filamentLayers);
 	const [selectedColor, setSelectedColor] = useState(parseColor("#000000"));
+	const [projectConfig, setProjectConfig] = useSyncState("ProjectConfig", props.projectConfig);
+	const [filamentLayers, setFilamentLayers] = useSyncState("FilamentLayers", props.filamentLayers);
 
 	if (!layoutManager) {
 		return <div>Layout manager not found</div>;
 	}
 
-	useEvent("projectConfigChanged", (config) => {
-		setFilamentToAdd((old) => ({ ...old, layerHeight: config.layerHeight }));
-	});
+	const addLayerCallback = (layer: FilamentData) => {
+		if (filamentLayers.some((l) => l.name === layer.name)) {
+			alert(`Layer with name ${layer.name} already exists.`);
+			return false;
+		}
+
+		setFilamentLayers((prev) => {
+			return [layer, ...prev];
+		});
+		return true;
+	};
+
+	useEffect(() => {
+		setFilamentToAdd((old) => ({ ...old, layerHeight: projectConfig.layerHeight }));
+	}, [projectConfig]);
 
 	useEffect(() => {
 		var newOpacity = getOpacityFromColor(filamentToAdd.color);
@@ -110,12 +124,13 @@ export function Sidebar(props: IComponentProjectData) {
 						className="filament-add-button"
 						id="add-item-button-new"
 						onClick={() => {
-							emitEvent(layoutManager, "layerAdded", structuredClone(filamentToAdd));
-							setFilamentToAdd((old) => ({ ...old, name: `Filament ${filamentCounter + 1}` }));
-							setFilamentCounter(filamentCounter + 1);
-							setRecentFilaments((old) => {
-								return [...old, structuredClone(filamentToAdd)];
-							});
+							if (addLayerCallback(structuredClone(filamentToAdd))) {
+								setFilamentToAdd((old) => ({ ...old, name: `Filament ${filamentCounter + 1}` }));
+								setFilamentCounter(filamentCounter + 1);
+								setRecentFilaments((old) => {
+									return [...old, structuredClone(filamentToAdd)];
+								});
+							}
 						}}
 					>
 						Add Filament Layer
@@ -130,9 +145,10 @@ export function Sidebar(props: IComponentProjectData) {
 						filamentData={filament}
 						onAdd={(filamentData) => {
 							const newFilament = { ...filamentData, name: filamentToAdd.name };
-							emitEvent(layoutManager, "layerAdded", structuredClone(newFilament));
-							setFilamentToAdd((old) => ({ ...old, name: `Filament ${filamentCounter + 1}` }));
-							setFilamentCounter(filamentCounter + 1);
+							if (addLayerCallback(structuredClone(newFilament))) {
+								setFilamentToAdd((old) => ({ ...old, name: `Filament ${filamentCounter + 1}` }));
+								setFilamentCounter(filamentCounter + 1);
+							}
 						}}
 						onDelete={(id) => {
 							setRecentFilaments((old) => old.filter((f) => f.name !== id));

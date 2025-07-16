@@ -74,7 +74,7 @@ export function Layout(/*{ container, eventHub, state }: ILyoutProps*/) {
 
 	useLayoutEvent(layoutMan, "projectLoaded", (data) => {
 		getImageFromStringAsync(data.image).then((imageGeneratedResult) => {
-			if (imageGeneratedResult.imageElement)
+			if (imageGeneratedResult.imageElement) {
 				setProjectData({
 					projectConfig: data.projectConfig,
 					exportConfig: data.exportConfig,
@@ -83,6 +83,7 @@ export function Layout(/*{ container, eventHub, state }: ILyoutProps*/) {
 					computedData: data.computedData,
 					sourceImage: imageGeneratedResult.imageElement,
 				});
+			}
 		});
 	});
 
@@ -124,6 +125,7 @@ export function Layout(/*{ container, eventHub, state }: ILyoutProps*/) {
 					(item.target as Stack).header.controlsContainerElement.querySelector(".lm_close")?.remove();
 				}
 			});
+			layoutMan.resizeWithContainerAutomatically = true;
 			layoutMan.loadLayout(defaultLayout);
 			setLayoutMan(layoutMan);
 			initialized.current = true;
