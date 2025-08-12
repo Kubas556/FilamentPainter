@@ -15,7 +15,7 @@ import { getImageFromStringAsync } from "../../Upload";
 
 const defaultLayout: LayoutConfig = {
 	header: { popout: false, maximise: false },
-	settings: { tabControlOffset: 20 },
+	settings: { tabControlOffset: 20, popInOnClose: true },
 	dimensions: { borderWidth: 1 },
 	root: {
 		type: "row",
@@ -62,7 +62,7 @@ export function Layout(/*{ container, eventHub, state }: ILyoutProps*/) {
 	const layoutRoot = useRef<HTMLDivElement>(null);
 	const initialized = useRef(false);
 	const [layoutMan, setLayoutMan] = useState<GoldenLayout | null>(null);
-	const [componentContainers, setComponentContainers] = useState<{ [name: string]: ComponentContainer }>({});
+	const [componentContainers, setComponentContainers] = useState<{ [name: string]: ComponentContainer | null }>({});
 	const [projectData, setProjectData] = useState<IComponentProjectData>({
 		projectConfig: DefaultProjectConfig,
 		exportConfig: defaultExportConfig,
@@ -96,17 +96,17 @@ export function Layout(/*{ container, eventHub, state }: ILyoutProps*/) {
 		if (layoutRoot.current) {
 			layoutMan = new GoldenLayout(
 				layoutRoot.current,
-				(e, e2) => {
-					console.log(e);
-					console.log(e2);
-					//const el = { type: "component", componentType: "bind", header: { show: false } };
-					//e.element.innerText = "Binded";
-					return { component: {}, virtual: false };
+				(container, component) => {
+					if (new URL(document.location.href).searchParams.get("gl-window") !== null) {
+						setComponentContainers((prev) => ({ ...prev, [component.componentType as string]: container }));
+						return { component, virtual: false };
+					}
+					return { component, virtual: false };
 				},
-				(e) => {
-					//@ts-ignore
-					//console.log(e.stateRequestEvent!("dd"));
-					console.log(e);
+				(container) => {
+					if (new URL(document.location.href).searchParams.get("gl-window") !== null) {
+						setComponentContainers((prev) => ({ ...prev, [container.componentType as string]: null }));
+					}
 				},
 			);
 
@@ -126,7 +126,7 @@ export function Layout(/*{ container, eventHub, state }: ILyoutProps*/) {
 				}
 			});
 			layoutMan.resizeWithContainerAutomatically = true;
-			layoutMan.loadLayout(defaultLayout);
+			if (!layoutMan.isSubWindow) layoutMan.loadLayout(defaultLayout);
 			setLayoutMan(layoutMan);
 			initialized.current = true;
 		}
@@ -149,7 +149,8 @@ export function Layout(/*{ container, eventHub, state }: ILyoutProps*/) {
 			{layoutMan &&
 				Object.keys(componentContainers).map((name) => {
 					const Component = componentTypes[name];
-					return createPortal(<Component {...projectData} />, componentContainers[name].element);
+					const container = componentContainers[name];
+					if (container != null) return createPortal(<Component {...projectData} />, container.element);
 				})}
 			<div style={{ width: "100%", height: "100%" }} ref={layoutRoot} />
 		</LayoutContext.Provider>
