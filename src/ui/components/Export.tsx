@@ -7,12 +7,10 @@ import { useSyncState } from "../useSyncState";
 
 export const defaultExportConfig = {
 	imageResolution: { x: 0, y: 0 },
-	physicalSize: { x: 0, y: 0 },
+	physicalSize: { x: 100, y: 0 },
 	detailSize: 0.2,
 	aspectRatio: 1,
 };
-
-const defaultPhsicalSizeX = 100;
 
 export function Export(props: IComponentProjectData) {
 	const layoutManager = useContext(LayoutContext);
@@ -47,13 +45,16 @@ export function Export(props: IComponentProjectData) {
 	});
 
 	useEffect(() => {
-		if (sourceImage && exportConfig.physicalSize.x === 0) {
+		if (sourceImage) {
 			const newAspectRatio = sourceImage.width / sourceImage.height;
 			setExportConfig((prev) => {
 				return {
 					...exportConfig,
 					aspectRatio: newAspectRatio,
-					physicalSize: { x: defaultPhsicalSizeX, y: defaultPhsicalSizeX / newAspectRatio },
+					physicalSize: {
+						x: exportConfig.physicalSize.x,
+						y: exportConfig.physicalSize.x / newAspectRatio,
+					},
 				};
 			});
 		}
