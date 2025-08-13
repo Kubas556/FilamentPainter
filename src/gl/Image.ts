@@ -1,4 +1,4 @@
-import { config } from "../config/Config.js";
+import { config } from '../config/Config.js';
 
 export class GLImage {
 	public texture: WebGLTexture;
@@ -12,7 +12,7 @@ export class GLImage {
 		this._height = imageElement.height;
 
 		if (!config.compute.gl || !this.imageElement) {
-			throw new Error("No WebGL instance to create texture");
+			throw new Error('No WebGL instance to create texture');
 		}
 
 		this.texture = config.compute.gl.createTexture();

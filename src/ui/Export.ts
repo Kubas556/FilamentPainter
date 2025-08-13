@@ -1,22 +1,22 @@
-import { updateImage } from "./UpdateImage.js";
-import { config } from "../config/Config.js";
-import { generateSTLAndDownload, getHeights } from "../tools/HeightmapExport.js";
-import { Filament } from "../Filament.js";
+import { updateImage } from './UpdateImage.js';
+import { config } from '../config/Config.js';
+import { generateSTLAndDownload, getHeights } from '../tools/HeightmapExport.js';
+import { Filament } from '../Filament.js';
 
-const exportButtonSTL = document.getElementById("export-stl") as HTMLButtonElement;
+const exportButtonSTL = document.getElementById('export-stl') as HTMLButtonElement;
 
-const detailSizeInput = document.getElementById("detail-size") as HTMLInputElement;
+const detailSizeInput = document.getElementById('detail-size') as HTMLInputElement;
 
-const imageResolutionX = document.getElementById("image-resolution-x") as HTMLInputElement;
-const imageResolutionY = document.getElementById("image-resolution-y") as HTMLInputElement;
+const imageResolutionX = document.getElementById('image-resolution-x') as HTMLInputElement;
+const imageResolutionY = document.getElementById('image-resolution-y') as HTMLInputElement;
 
-const physicalXInput = document.getElementById("physical-x") as HTMLInputElement;
-const physicalYInput = document.getElementById("physical-y") as HTMLInputElement;
+const physicalXInput = document.getElementById('physical-x') as HTMLInputElement;
+const physicalYInput = document.getElementById('physical-y') as HTMLInputElement;
 
-const instructions = document.getElementById("instructions") as HTMLInputElement;
+const instructions = document.getElementById('instructions') as HTMLInputElement;
 
-const baseLayerHeight = document.getElementById("base-layer-height-input") as HTMLInputElement;
-const globalLayerHeightInput = document.getElementById("layer-height-input") as HTMLInputElement; // Get global input
+const baseLayerHeight = document.getElementById('base-layer-height-input') as HTMLInputElement;
+const globalLayerHeightInput = document.getElementById('layer-height-input') as HTMLInputElement; // Get global input
 
 function getUniqueFilaments(filaments: Filament[]): Filament[] {
 	const uniqueFilaments: Filament[] = [];
@@ -34,11 +34,11 @@ function getUniqueFilaments(filaments: Filament[]): Filament[] {
 }
 
 export function setupExport() {
-	exportButtonSTL.addEventListener("click", (e) => {
+	exportButtonSTL.addEventListener('click', (e) => {
 		updateImage();
 
 		if (config.paint.image.width == 0) {
-			console.log("No image");
+			console.log('No image');
 			return;
 		}
 
@@ -53,17 +53,17 @@ export function setupExport() {
 
 		let scaleFactor = pixelScaleFactor * sizeScaleFactor;
 
-		generateSTLAndDownload(heights, "filamentPainting.stl", scaleFactor);
+		generateSTLAndDownload(heights, 'filamentPainting.stl', scaleFactor);
 
 		let filamentsUsed = getUniqueFilaments(config.paint.filaments);
 
-		let filamentsString = "";
+		let filamentsString = '';
 
 		for (let filament of filamentsUsed) {
 			filamentsString += `${filament.name} - Opacity ${filament.opacity} mm\n`;
 		}
 
-		let swapString = "";
+		let swapString = '';
 
 		for (let i = 0; i < config.paint.filaments.length; i++) {
 			let filament = config.paint.filaments[i];
@@ -87,15 +87,15 @@ ${swapString}`;
 
 		instructions.innerHTML = instructionString;
 
-		downloadTextFile("Filament Painter Instructions.txt", instructionString);
+		downloadTextFile('Filament Painter Instructions.txt', instructionString);
 	});
 }
 
 export function downloadTextFile(filename: string, content: string): void {
-	const blob = new Blob([content], { type: "text/plain" });
+	const blob = new Blob([content], { type: 'text/plain' });
 	const url = URL.createObjectURL(blob);
 
-	const a = document.createElement("a");
+	const a = document.createElement('a');
 	a.href = url;
 	a.download = filename;
 	document.body.appendChild(a);

@@ -41,7 +41,7 @@ export class PaintConfig {
     }
     get image() {
         if (this._image == null) {
-            throw new Error("No image selected");
+            throw new Error('No image selected');
         }
         return this._image;
     }

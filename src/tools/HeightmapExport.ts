@@ -24,7 +24,7 @@ export function getHeights(outputData: Float32Array, width: number, height: numb
 
 export function generateSTLAndDownload(
 	heightmap: number[][],
-	filename: string = "filament-painting.stl",
+	filename: string = 'filament-painting.stl',
 	scaleFactor: number = 1,
 ): void {
 	const numRows = heightmap.length;
@@ -220,8 +220,8 @@ export function generateSTLAndDownload(
 	}
 
 	// Download the binary STL file
-	const blob = new Blob([buffer], { type: "application/octet-stream" });
-	const link = document.createElement("a");
+	const blob = new Blob([buffer], { type: 'application/octet-stream' });
+	const link = document.createElement('a');
 	link.href = URL.createObjectURL(blob);
 	link.download = filename;
 	document.body.appendChild(link);
@@ -229,7 +229,7 @@ export function generateSTLAndDownload(
 	document.body.removeChild(link);
 	URL.revokeObjectURL(link.href);
 
-	console.log("Binary STL generation and download initiated.");
+	console.log('Binary STL generation and download initiated.');
 }
 
 // Function to generate a larger test heightmap with a clear hole

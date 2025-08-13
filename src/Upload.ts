@@ -12,17 +12,17 @@ export function handleImageUpload(inputId: string, callback: (result: ImageUploa
 		return;
 	}
 
-	inputElement.addEventListener("change", (event) => {
+	inputElement.addEventListener('change', (event) => {
 		const target = event.target as HTMLInputElement;
 		const file = target.files?.[0];
 
 		if (!file) {
-			callback({ file: null, imageElement: null, error: "No file selected." });
+			callback({ file: null, imageElement: null, error: 'No file selected.' });
 			return;
 		}
 
-		if (!file.type.startsWith("image/")) {
-			callback({ file: null, imageElement: null, error: "Selected file is not an image." });
+		if (!file.type.startsWith('image/')) {
+			callback({ file: null, imageElement: null, error: 'Selected file is not an image.' });
 			return;
 		}
 
@@ -37,14 +37,14 @@ export function handleImageUpload(inputId: string, callback: (result: ImageUploa
 			};
 
 			img.onerror = () => {
-				callback({ file, imageElement: null, error: "Error loading the image." });
+				callback({ file, imageElement: null, error: 'Error loading the image.' });
 			};
 
 			img.src = dataUrl;
 		};
 
 		reader.onerror = () => {
-			callback({ file, imageElement: null, error: "Error reading the file." });
+			callback({ file, imageElement: null, error: 'Error reading the file.' });
 		};
 
 		reader.readAsDataURL(file);

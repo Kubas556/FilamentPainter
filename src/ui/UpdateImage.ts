@@ -1,58 +1,58 @@
-import { config } from "../config/Config.js";
-import { HeightFunction } from "../config/Paint.js";
-import { getComputeFunction } from "../gl/compute/Heights.js";
-import { GLImage } from "../gl/Image.js";
-import { debugDisplayDataOutput, debugDisplayHTMLImage } from "../debug/DisplayImage.js";
-import { getFilamentListElements } from "./Filaments.js";
-import { Filament } from "../Filament.js";
+import { config } from '../config/Config.js';
+import { HeightFunction } from '../config/Paint.js';
+import { getComputeFunction } from '../gl/compute/Heights.js';
+import { GLImage } from '../gl/Image.js';
+import { debugDisplayDataOutput, debugDisplayHTMLImage } from '../debug/DisplayImage.js';
+import { getFilamentListElements } from './Filaments.js';
+import { Filament } from '../Filament.js';
 
 function getTopographyFunction() {
-	const heightOptionSelect = document.getElementById("height-option-selection") as HTMLSelectElement;
+	const heightOptionSelect = document.getElementById('height-option-selection') as HTMLSelectElement;
 	const selectedValue = heightOptionSelect.value;
 	let selectedHeightFunction: HeightFunction;
 
 	switch (selectedValue) {
-		case "nearest":
+		case 'nearest':
 			selectedHeightFunction = HeightFunction.NEAREST;
 			break;
-		case "greyscale-max":
+		case 'greyscale-max':
 			selectedHeightFunction = HeightFunction.GREYSCALE_MAX;
 			break;
-		case "greyscale-luminance":
+		case 'greyscale-luminance':
 			selectedHeightFunction = HeightFunction.GREYSCALE_LUMINANCE;
 			break;
 		default:
-			throw new Error("Invalid option");
+			throw new Error('Invalid option');
 	}
 
 	return selectedHeightFunction;
 }
 
-const detailSizeInput = document.getElementById("detail-size") as HTMLInputElement;
+const detailSizeInput = document.getElementById('detail-size') as HTMLInputElement;
 
-const imageResolutionX = document.getElementById("image-resolution-x") as HTMLInputElement;
-const imageResolutionY = document.getElementById("image-resolution-y") as HTMLInputElement;
+const imageResolutionX = document.getElementById('image-resolution-x') as HTMLInputElement;
+const imageResolutionY = document.getElementById('image-resolution-y') as HTMLInputElement;
 
-const physicalXInput = document.getElementById("physical-x") as HTMLInputElement;
-const physicalYInput = document.getElementById("physical-y") as HTMLInputElement;
+const physicalXInput = document.getElementById('physical-x') as HTMLInputElement;
+const physicalYInput = document.getElementById('physical-y') as HTMLInputElement;
 
-const fileSizeEstimate = document.getElementById("file-size-estimate") as HTMLElement;
+const fileSizeEstimate = document.getElementById('file-size-estimate') as HTMLElement;
 
 export function updateOtherField(changedInput: HTMLInputElement): void {
 	const aspectRatio = config.paint.sourceImage.width / config.paint.sourceImage.height;
 
 	if (changedInput === physicalXInput) {
 		const newY = parseFloat(physicalXInput.value) / aspectRatio;
-		physicalYInput.value = isNaN(newY) ? "" : newY.toString();
+		physicalYInput.value = isNaN(newY) ? '' : newY.toString();
 	} else if (changedInput === physicalYInput) {
 		const newX = parseFloat(physicalYInput.value) * aspectRatio;
-		physicalXInput.value = isNaN(newX) ? "" : newX.toString();
+		physicalXInput.value = isNaN(newX) ? '' : newX.toString();
 	}
 
 	const detailSize = parseFloat(detailSizeInput.value);
 
 	if (isNaN(detailSize) || detailSize <= 0) {
-		console.error("Invalid detail size.");
+		console.error('Invalid detail size.');
 		return;
 	}
 
@@ -67,21 +67,21 @@ export function updateOtherField(changedInput: HTMLInputElement): void {
 	autoUpdateImage();
 }
 
-physicalXInput.addEventListener("input", () => updateOtherField(physicalXInput));
-physicalYInput.addEventListener("input", () => updateOtherField(physicalYInput));
-detailSizeInput.addEventListener("input", () => updateOtherField(physicalYInput));
+physicalXInput.addEventListener('input', () => updateOtherField(physicalXInput));
+physicalYInput.addEventListener('input', () => updateOtherField(physicalYInput));
+detailSizeInput.addEventListener('input', () => updateOtherField(physicalYInput));
 
 // Function to resize the config.paint.image
 function resizePaintImage(afterResize: () => void): void {
 	if (!config.paint.sourceImage) {
-		console.error("Source image is not loaded.");
+		console.error('Source image is not loaded.');
 		return;
 	}
 
 	const detailSize = parseFloat(detailSizeInput.value);
 
 	if (isNaN(detailSize) || detailSize <= 0) {
-		console.error("Invalid detail size.");
+		console.error('Invalid detail size.');
 		return;
 	}
 
@@ -92,12 +92,12 @@ function resizePaintImage(afterResize: () => void): void {
 	fileSizeEstimate.innerHTML = `Estimated file size: ${(pixelWidth * pixelHeight * 200) / 1000000} MB`;
 
 	// Create a new canvas element with the calculated dimensions
-	const canvas = document.getElementById("canvas-source") as HTMLCanvasElement;
+	const canvas = document.getElementById('canvas-source') as HTMLCanvasElement;
 	canvas.width = pixelWidth;
 	canvas.height = pixelHeight;
 
 	// Get the 2D rendering context of the canvas
-	const ctx = canvas.getContext("2d");
+	const ctx = canvas.getContext('2d');
 
 	if (ctx) {
 		// Draw the source image onto the canvas, scaling it to the new dimensions
@@ -115,18 +115,18 @@ function resizePaintImage(afterResize: () => void): void {
 		};
 		resizedImage.src = canvas.toDataURL(); // Get the data URL of the canvas content
 	} else {
-		console.error("Could not get 2D rendering context for canvas.");
+		console.error('Could not get 2D rendering context for canvas.');
 	}
 }
 
-const baseLayerHeight = document.getElementById("base-layer-height-input") as HTMLInputElement;
-const globalLayerHeightInput = document.getElementById("layer-height-input") as HTMLInputElement;
+const baseLayerHeight = document.getElementById('base-layer-height-input') as HTMLInputElement;
+const globalLayerHeightInput = document.getElementById('layer-height-input') as HTMLInputElement;
 
 let glImage: GLImage | undefined;
 
 export function updateImage() {
 	if (config.paint.image.height == 0) {
-		console.log("no image");
+		console.log('no image');
 		return;
 	}
 
@@ -172,7 +172,7 @@ export function updateImage() {
 }
 
 export function autoUpdateImage() {
-	const autoCheckbox = document.getElementById("auto-update-checkbox") as HTMLInputElement;
+	const autoCheckbox = document.getElementById('auto-update-checkbox') as HTMLInputElement;
 
 	if (autoCheckbox.checked) {
 		updateImage();
@@ -180,4 +180,4 @@ export function autoUpdateImage() {
 }
 
 // @ts-ignore
-document.getElementById("update-painting-button").addEventListener("click", updateImage);
+document.getElementById('update-painting-button').addEventListener('click', updateImage);

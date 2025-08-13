@@ -1,4 +1,4 @@
-import { config } from "../config/Config.js";
+import { config } from '../config/Config.js';
 
 export class GLShader {
 	public shader: WebGLShader;
@@ -7,7 +7,7 @@ export class GLShader {
 		let gl = config.compute.gl;
 		const shader = gl.createShader(type);
 		if (!shader) {
-			throw new Error("Shader creation error");
+			throw new Error('Shader creation error');
 		}
 
 		this.shader = shader;

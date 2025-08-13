@@ -1,5 +1,5 @@
-const previewWindow = document.querySelector<HTMLElement>(".preview-window");
-const resizeHandle = document.querySelector<HTMLElement>(".resize-handle");
+const previewWindow = document.querySelector<HTMLElement>('.preview-window');
+const resizeHandle = document.querySelector<HTMLElement>('.resize-handle');
 
 export function setupPreviewWindow() {
 	if (previewWindow && resizeHandle) {
@@ -7,12 +7,12 @@ export function setupPreviewWindow() {
 		let startX: number;
 		let startWidth: number;
 
-		resizeHandle.addEventListener("mousedown", (e) => {
+		resizeHandle.addEventListener('mousedown', (e) => {
 			isResizing = true;
 			startX = e.clientX;
 			startWidth = previewWindow.offsetWidth;
-			document.addEventListener("mousemove", handleMouseMove);
-			document.addEventListener("mouseup", handleMouseUp);
+			document.addEventListener('mousemove', handleMouseMove);
+			document.addEventListener('mouseup', handleMouseUp);
 			e.preventDefault();
 		});
 
@@ -25,18 +25,18 @@ export function setupPreviewWindow() {
 			// @ts-ignore
 			previewWindow.style.width = `calc(${newWidth}px - 4rem)`;
 			// @ts-ignore
-			resizeHandle.style.right = "0px";
+			resizeHandle.style.right = '0px';
 		}
 
 		function handleMouseUp() {
 			isResizing = false;
-			document.removeEventListener("mousemove", handleMouseMove);
-			document.removeEventListener("mouseup", handleMouseUp);
+			document.removeEventListener('mousemove', handleMouseMove);
+			document.removeEventListener('mouseup', handleMouseUp);
 		}
 
 		previewWindow.style.width = `30vw`;
 
-		window.addEventListener("resize", () => {
+		window.addEventListener('resize', () => {
 			previewWindow.style.width = `30vw`;
 		});
 	}

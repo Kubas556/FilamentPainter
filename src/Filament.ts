@@ -1,11 +1,11 @@
-import { vec3 } from "./Types.js";
+import { vec3 } from './Types.js';
 
 export class Filament {
 	colour: vec3 = vec3(0, 0, 0);
 	endHeight: number = 0;
 	// Distance to opaque in mm
 	opacity: number = 0;
-	name: string = "";
+	name: string = '';
 
 	/**
 	 * Creates a new Filament instance.
@@ -18,7 +18,7 @@ export class Filament {
 		endHeight: number,
 		name: string,
 		opacity: number,
-		colorFormat: "normalised" | "byte" = "normalised",
+		colorFormat: 'normalised' | 'byte' = 'normalised',
 	) {
 		this.endHeight = endHeight;
 		this.name = name;
@@ -29,17 +29,17 @@ export class Filament {
 			let g = colour[1];
 			let b = colour[2];
 
-			const format = colorFormat || "normalised"; // Default to normalized for RGB array
+			const format = colorFormat || 'normalised'; // Default to normalized for RGB array
 
-			if (format === "byte") {
+			if (format === 'byte') {
 				this.colour = vec3(r / 255, g / 255, b / 255); // Normalize byte values to 0-1
 			} else {
 				this.colour = vec3(r, g, b);
 			}
-		} else if (typeof colour === "string") {
+		} else if (typeof colour === 'string') {
 			this.colour = this.hexToRgbNormalized(colour);
 		} else {
-			throw new Error("Invalid color format provided. Use RGB array or hex string.");
+			throw new Error('Invalid color format provided. Use RGB array or hex string.');
 		}
 	}
 

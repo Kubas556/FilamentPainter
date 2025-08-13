@@ -4,7 +4,7 @@ export class ComputeConfig {
 
 	get canvas(): HTMLCanvasElement {
 		if (this._canvas == null) {
-			throw new Error("Fetched canvas before initialisation");
+			throw new Error('Fetched canvas before initialisation');
 		}
 		return this._canvas;
 	}
@@ -15,7 +15,7 @@ export class ComputeConfig {
 
 	get gl(): WebGL2RenderingContext {
 		if (this._gl == null) {
-			throw new Error("WebGL not supported on this browser");
+			throw new Error('WebGL not supported on this browser');
 		}
 		return this._gl;
 	}

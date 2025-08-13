@@ -1,5 +1,5 @@
-import { vec2 } from "../Types.js";
-import { Filament } from "../Filament.js";
+import { vec2 } from '../Types.js';
+import { Filament } from '../Filament.js';
 
 export enum HeightFunction {
 	NEAREST,
@@ -51,7 +51,7 @@ export class PaintConfig {
 
 	public get image(): HTMLImageElement {
 		if (this._image == null) {
-			throw new Error("No image selected");
+			throw new Error('No image selected');
 		}
 
 		return this._image;
