@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from "react";
-import { IComputedData, useEvent } from "../EventHub";
 import { LayoutContext } from "../LayoutContext";
 import { generateSTL } from "../Export";
 import { exportProject, IComponentProjectData } from "../ExportProject";
@@ -18,7 +17,7 @@ export function Export(props: IComponentProjectData) {
 	const [projectConfig] = useSyncState("ProjectConfig", props.projectConfig);
 	const [sourceImage] = useSyncState("SourceImage", props.sourceImage);
 	const [filamentLayers] = useSyncState("FilamentLayers", props.filamentLayers);
-	const [computedData, setComputedData] = useState<IComputedData | undefined>(props.computedData);
+	const [computedData] = useSyncState("ComputedData", props.computedData);
 
 	const [instructions, setInstructions] = useState<string>("");
 
@@ -39,10 +38,6 @@ export function Export(props: IComponentProjectData) {
 			});
 		}
 	};
-
-	useEvent("computedDataChanged", (data) => {
-		setComputedData(data);
-	});
 
 	useEffect(() => {
 		if (sourceImage) {
@@ -142,9 +137,8 @@ export function Export(props: IComponentProjectData) {
 				<div className="h-gap-small"></div>
 				mm
 			</div>
-			<span id="file-size-estimate">{`Estimated file size: ${
-				(exportConfig.imageResolution.x * exportConfig.imageResolution.y * 200) / 1000000
-			} MB`}</span>
+			<span id="file-size-estimate">{`Estimated file size: ${(exportConfig.imageResolution.x * exportConfig.imageResolution.y * 200) / 1000000
+				} MB`}</span>
 			<div className="h-divider"></div>
 			<div className="inline-div">
 				<h3>Print Instructions</h3>
@@ -161,10 +155,11 @@ export function Export(props: IComponentProjectData) {
 			<button
 				id="export-stl"
 				onClick={() => {
-					if (computedData?.computedResult && computedData.filaments)
+					if (computedData?.computedResult && computedData.filaments) {
 						setInstructions(
 							generateSTL(computedData.computedResult, exportConfig, projectConfig, computedData.filaments) ?? "",
 						);
+					}
 				}}
 			>
 				Export as STL

@@ -1,6 +1,5 @@
-import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { LayoutContext } from "../LayoutContext";
-import { emitEvent } from "../EventHub";
 import { getComputeFunction } from "../../gl/compute/Heights";
 import { GLImage } from "../../gl/Image";
 import { FilamentData } from "../Filaments";
@@ -15,11 +14,7 @@ export function ImagePreview(props: IComponentProjectData) {
 	const [exportConfig] = useSyncState("ExportConfig", props.exportConfig);
 	const [projectConfig] = useSyncState("ProjectConfig", props.projectConfig);
 	const [filamentLayers] = useSyncState("FilamentLayers", props.filamentLayers);
-
-	const [computedResult, setComputedResult] = useState<Float32Array<ArrayBuffer> | undefined>(
-		props.computedData?.computedResult,
-	);
-	const [filaments, setFilaments] = useState<Filament[]>(props.computedData?.filaments ?? []);
+	const [computedData, setComputedData] = useSyncState("ComputedData", props.computedData);
 
 	const [glImage, setGlImage] = useState<GLImage | undefined>();
 	const [ratio, setRatio] = useState<number | null>(null);
@@ -29,10 +24,6 @@ export function ImagePreview(props: IComponentProjectData) {
 	if (!layoutManager) {
 		return <div>Layout manager not found</div>;
 	}
-
-	useEffect(() => {
-		emitEvent(layoutManager, "computedDataChanged", structuredClone({ computedResult, filaments }));
-	}, [computedResult, filaments]);
 
 	useEffect(() => {
 		if (imageRef.current && sourceImage && exportConfig && projectConfig) {
@@ -62,7 +53,7 @@ export function ImagePreview(props: IComponentProjectData) {
 
 				let filaments: FilamentData[] = [...filamentLayers].reverse(); //getFilamentListElements().reverse();
 				let layerHeight = projectConfig.baseLayerHeight;
-				const usedFilaments = [];
+				const usedFilaments: Filament[] = [];
 				for (let i = 0; i < filaments.length; i++) {
 					usedFilaments.push(
 						new Filament(
@@ -74,7 +65,6 @@ export function ImagePreview(props: IComponentProjectData) {
 					);
 					layerHeight += filaments[i].layerHeight;
 				}
-				setFilaments(usedFilaments);
 
 				const startHeight = projectConfig.baseLayerHeight;
 				const endHeight = layerHeight;
@@ -86,7 +76,8 @@ export function ImagePreview(props: IComponentProjectData) {
 					endHeight,
 					increment,
 				});
-				setComputedResult(computedResult);
+
+				setComputedData(prev => ({ computedResult, filaments: usedFilaments }))
 
 				if (!ctx) {
 					throw new Error("Canvas 2D context not available.");

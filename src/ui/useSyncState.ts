@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useState } from "react";
 import { LayoutContext } from "./LayoutContext";
-import { IExportConfig, IProjectConfig } from "./EventHub";
+import { IComputedData, IExportConfig, IProjectConfig } from "./EventHub";
 import { FilamentData } from "./Filaments";
 
 export interface ISyncableState {
@@ -8,6 +8,7 @@ export interface ISyncableState {
 	ExportConfig: IExportConfig;
 	ProjectConfig: IProjectConfig;
 	FilamentLayers: FilamentData[];
+	ComputedData: IComputedData | undefined;
 }
 
 export function useSyncState<E extends keyof ISyncableState>(
