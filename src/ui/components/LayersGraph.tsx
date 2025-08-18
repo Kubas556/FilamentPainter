@@ -1,4 +1,4 @@
-import React, { SVGProps, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSyncState } from "../useSyncState";
 import { IComponentProjectData } from "../ExportProject";
 import { getLayersWithColors, LayerColorData } from "../../tools/HeightmapExport";
@@ -6,6 +6,7 @@ import { FilamentData } from "../Filaments";
 
 const segmentGap = 5;
 const segmentWidth = 65;
+const graphTopAndBottomPadding = 15;
 
 function roundDecimal(num: number) {
     return Math.round(num * 100) / 100;
@@ -46,6 +47,9 @@ function padZero(str: string, len?: number) {
     return (zeros + str).slice(-len);
 }
 
+type LayerRectProps = { x: number, y: number, width: number, height: number, fill: string };
+type FilamentMarkerProps = { x: number, y: number, width: number, height: number, fill: string, text: string, textFill: string };
+
 export function LayersGraph(props: IComponentProjectData) {
 
     const [computedData] = useSyncState("ComputedData", props.computedData);
@@ -55,8 +59,8 @@ export function LayersGraph(props: IComponentProjectData) {
 
     const svgRef = useRef<SVGSVGElement | null>(null);
     const [graphSize, setGraphSize] = useState<{ width: number, height: number }>();
-    const [layerRectangles, setLayerRectangles] = useState<SVGProps<SVGRectElement>[]>([]);
-    const [filamentMarkers, setFilamentMarkers] = useState<{ x: number, y: number, width: number, height: number, fill: string, text: string, textFill: string }[]>([]);
+    const [layerRectangles, setLayerRectangles] = useState<LayerRectProps[]>([]);
+    const [filamentMarkers, setFilamentMarkers] = useState<FilamentMarkerProps[]>([]);
 
     useEffect(() => {
         if (computedData?.computedResult && graphSize) {
@@ -70,19 +74,18 @@ export function LayersGraph(props: IComponentProjectData) {
 
             const sorted = layersWithColors.sort((a, b) => b.averageHeight - a.averageHeight);
 
-            const segmentPortion = 100 / layersWithColors.length;
-            const segmentHeight = graphSize.height / layersWithColors.length;
-            let lastY = 0;
+            const segmentHeight = (graphSize.height - (graphTopAndBottomPadding * 2)) / layersWithColors.length;
+            let lastY = graphTopAndBottomPadding;
 
             const layersSegmentHeights = sorted.map<{ svgY: number, layer: LayerColorData }>(layer => {
                 const result = { svgY: lastY, layer };
-                lastY += segmentPortion;
+                lastY += segmentHeight;
 
                 return result;
             });
 
-            setLayerRectangles(layersSegmentHeights.map<SVGProps<SVGRectElement>>(layerData => {
-                return { y: `calc(${layerData.svgY}% + ${segmentGap / 2}px)`, x: `calc(50% - ${segmentWidth / 2}px)`, width: `${segmentWidth}px`, height: `calc(${segmentPortion}% - ${segmentGap}px)`, fill: layerData.layer.dominantColor.hex };
+            setLayerRectangles(layersSegmentHeights.map<LayerRectProps>(layerData => {
+                return { y: layerData.svgY, x: graphSize.width / 2, width: segmentWidth, height: segmentHeight, fill: layerData.layer.dominantColor.hex };
             }));
 
             const filamentLayersRange: { min: number, max: number, filament: FilamentData }[] = [];
@@ -105,28 +108,44 @@ export function LayersGraph(props: IComponentProjectData) {
                         return l.layer.layerHeightRange.min >= filamentRange.min && l.layer.layerHeightRange.max <= filamentRange.max;
                     })
                 }
-            }).map(filamentWithSegments => {
+            }).map<FilamentMarkerProps | undefined>(filamentWithSegments => {
                 if (filamentWithSegments.segments.length == 0) return;
                 const lowestSegment = filamentWithSegments.segments.sort((a, b) => b.svgY - a.svgY)[0]; // highest svg Y value (indexing from top)
 
-                return { x: graphSize.width * 0.15, y: (graphSize.height * (lowestSegment.svgY / 100)) + (segmentHeight / 2), width: 40, height: 25, fill: filamentWithSegments.filament.color, textFill: invertColor(filamentWithSegments.filament.color, true), text: lowestSegment.layer.layerHeightRange.min.toString() };
+                return { x: graphSize.width * 0.15, y: lowestSegment.svgY + segmentHeight, width: 40, height: 25, fill: filamentWithSegments.filament.color, textFill: invertColor(filamentWithSegments.filament.color, true), text: lowestSegment.layer.layerHeightRange.min.toString() };
             });
 
             setFilamentMarkers(markers.filter(x => x !== undefined));
         }
-    }, [computedData, exportConfig, projectConfig])
+    }, [computedData, exportConfig, projectConfig, graphSize])
 
     useEffect(() => {
+        var observer: ResizeObserver | null = null;
         if (svgRef.current) {
-            setGraphSize({ width: svgRef.current.scrollWidth, height: svgRef.current.scrollHeight })
+            observer = new ResizeObserver(entries => {
+                const e = entries[0]; // should be only one
+                setGraphSize({ width: e.contentRect.width, height: e.contentRect.height })
+            })
+            observer.observe(svgRef.current);
+        }
+
+        return () => {
+            if (observer != null) {
+                if (svgRef.current)
+                    observer.unobserve(svgRef.current);
+                observer.disconnect();
+            }
         }
     }, [])
 
-
     return <div style={{ height: "calc(100% - 2rem)", padding: "1rem" }}>
         <svg width={"100%"} height={"100%"} ref={svgRef}>
-            {layerRectangles.map(e => <rect key={`${e.fill}${e.y}`} x={e.x} y={e.y} width={e.width} height={e.height} fill={e.fill} />)}
-            {filamentMarkers.map(e => <><polygon key={`${e.fill}${e.y}`} points={`${e.x + ((e.width / 2) - 8)},${e.y + (e.height / 2)} ${e.x - (e.width / 2)},${e.y + (e.height / 2)} ${e.x - (e.width / 2)},${e.y - (e.height / 2)} ${e.x + ((e.width / 2) - 8)},${e.y - (e.height / 2)} ${e.x + (e.width / 2)},${e.y}`} fill={e.fill} /><text key={e.text} x={e.x - (e.width / 2) + 2} y={e.y + 4} fill={e.textFill}>{e.text}</text></>)}
+            {layerRectangles.map(e => <rect key={`${e.fill}${e.y}`} x={e.x - (segmentWidth / 2)} y={e.y + (segmentGap / 2)} width={e.width} height={e.height - segmentGap} fill={e.fill} />)}
+            {graphSize && filamentMarkers.map(e => <>
+                <line x1={e.x} y1={e.y} x2={(graphSize.width / 2) + segmentWidth / 2 /* always points to the left side of layer segment */} y2={e.y} stroke={e.fill} strokeWidth={1} />
+                <polygon key={`${e.fill}${e.y}`} points={`${e.x + ((e.width / 2) - 8)},${e.y + (e.height / 2)} ${e.x - (e.width / 2)},${e.y + (e.height / 2)} ${e.x - (e.width / 2)},${e.y - (e.height / 2)} ${e.x + ((e.width / 2) - 8)},${e.y - (e.height / 2)} ${e.x + (e.width / 2)},${e.y}`} fill={e.fill} />
+                <text key={e.text} x={e.x - (e.width / 2) + 2} y={e.y + 4} fill={e.textFill}>{e.text}</text>
+            </>)}
         </svg>
     </div>
 }
