@@ -12,6 +12,7 @@ import { LayoutContext } from "../LayoutContext";
 import { useLayoutEvent } from "../EventHub";
 import { IComponentProjectData } from "../ExportProject";
 import { getImageFromStringAsync } from "../../Upload";
+import { LayersGraph } from "./LayersGraph";
 
 const defaultLayout: LayoutConfig = {
 	header: { popout: false, maximise: false },
@@ -33,10 +34,11 @@ const defaultLayout: LayoutConfig = {
 			{
 				type: "column",
 				content: [
-					{ type: "component", componentType: "imagePreview" },
-					{ type: "component", componentType: "imageSource" },
+					{ type: "component", componentType: "imagePreview", title: "image preview" },
+					{ type: "component", componentType: "imageSource", title: "image source" },
 				],
 			},
+			{ type: "component", size: "10%", componentType: "layersGraph", title: "layers graph", reorderEnabled: false }
 		],
 	},
 };
@@ -51,6 +53,7 @@ type ComponentMap = { [name: string]: (props: IComponentProjectData) => React.JS
 const componentTypes: ComponentMap = {
 	filament: Sidebar,
 	layers: Layers,
+	layersGraph: LayersGraph,
 	export: Export,
 	imagePreview: ImagePreview,
 	imageSource: ImageSource,
