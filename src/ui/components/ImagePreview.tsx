@@ -20,14 +20,19 @@ export function ImagePreview(props: IComponentProjectData) {
 	const [ratio, setRatio] = useState<number | null>(null);
 
 	const imageRef = useRef<HTMLCanvasElement>(null);
+	const manipulationCanvasRef = useRef<HTMLCanvasElement>(null);
 
 	if (!layoutManager) {
 		return <div>Layout manager not found</div>;
 	}
 
 	useEffect(() => {
+		if (manipulationCanvasRef.current === null) {
+			manipulationCanvasRef.current = document.createElement("canvas") as HTMLCanvasElement;
+		}
+
 		if (imageRef.current && sourceImage && exportConfig && projectConfig) {
-			resizePaintImage(sourceImage, exportConfig, (resizedImage) => {
+			resizePaintImage(manipulationCanvasRef.current, sourceImage, exportConfig, (resizedImage) => {
 				const resized = resizedImage;
 
 				let heightFunction = getTopographyFunction(projectConfig.selectedTopographyFunction);
@@ -77,7 +82,7 @@ export function ImagePreview(props: IComponentProjectData) {
 					increment,
 				});
 
-				setComputedData(prev => ({ computedResult, filaments: usedFilaments }))
+				setComputedData((prev) => ({ computedResult, filaments: usedFilaments }));
 
 				if (!ctx) {
 					throw new Error("Canvas 2D context not available.");

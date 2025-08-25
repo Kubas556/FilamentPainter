@@ -38,7 +38,7 @@ const defaultLayout: LayoutConfig = {
 					{ type: "component", componentType: "imageSource", title: "image source" },
 				],
 			},
-			{ type: "component", size: "10%", componentType: "layersGraph", title: "layers graph", reorderEnabled: false }
+			{ type: "component", size: "10%", componentType: "layersGraph", title: "layers graph", reorderEnabled: false },
 		],
 	},
 };

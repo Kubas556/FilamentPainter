@@ -296,16 +296,16 @@ export class GLComputeHeights extends GLComputeEngine {
             throw new Error("Framebuffer is not complete.");
         }
 
-        // const colours = [
-        //     1.0, 1.0, 1.0,
-        //     0.0, 0.0, 1.0,
-        //     0.0, 1.0, 0.0,
-        //     1.0, 1.0, 0.0,
-        //     1.0, 0.0, 0.0
-        // ];
-        // const heights = [0.8, 1.4, 1.9, 2.5, 2.6];
-        // const opacities = [0.5, 0.5, 0.5, 0.5, 0.5];
-        // const heightRange = [0.2, 2.6, 0.05];
+        /*const colours = [
+             1.0, 1.0, 1.0,
+             0.0, 0.0, 1.0,
+             0.0, 1.0, 0.0,
+             1.0, 1.0, 0.0,
+             1.0, 0.0, 0.0
+         ];
+         const heights = [0.8, 1.4, 1.9, 2.5, 2.6];
+         const opacities = [0.5, 0.5, 0.5, 0.5, 0.5];
+         const heightRange = [0.2, 2.6, 0.05];*/
 
         const colours = [];
         const heights = [];

@@ -35,7 +35,7 @@ function roundDecimal(num: number) {
  * Extracts layer information with corresponding painted colors organized by slicer layer numbers
  * @param computedResult - The RGBA Float32Array from the computed painting result
  * @param width - Image width
- * @param height - Image height  
+ * @param height - Image height
  * @param baseLayerHeight - Height of the first layer in mm
  * @param layerHeight - Height of subsequent layers in mm
  * @returns Array of layer data organized by slicer layer numbers
@@ -45,15 +45,15 @@ export function getLayersWithColors(
 	width: number,
 	height: number,
 	baseLayerHeight: number,
-	layerHeight: number
+	layerHeight: number,
 ): LayerColorData[] {
 	// First, get the height data
 	const heights = getHeights(computedResult, width, height);
 
 	// Find the maximum height to determine how many layers we need
 	let maxHeight = 0;
-	heights.forEach(row => {
-		row.forEach(h => {
+	heights.forEach((row) => {
+		row.forEach((h) => {
 			if (h > maxHeight) {
 				maxHeight = h;
 			}
@@ -85,19 +85,21 @@ export function getLayersWithColors(
 		}
 
 		// Collect all pixels that fall within this layer's height range
-		const layerPixels: { r: number, g: number, b: number, height: number }[] = [];
+		const layerPixels: { r: number; g: number; b: number; height: number }[] = [];
 
 		for (let i = 0; i < height; i++) {
 			for (let j = 0; j < width; j++) {
-				const pixelHeight = heights[i][j];
+				let pixelHeight = heights[i][j];
 
-				// ignore transparent pixels
-				if (pixelHeight == 0) continue;
+				// set default pixel height if not found
+				if (pixelHeight == 0) {
+					pixelHeight == layerMaxHeight;
+					//continue;
+				}
 
+				const actualPixelHeight = pixelHeight; /*+ baseLayerHeight*/
 
-				const actualPixelHeight = pixelHeight /*+ baseLayerHeight*/;
-
-				const difference = ((actualPixelHeight - layerMaxHeight) / actualPixelHeight) * 100
+				const difference = ((actualPixelHeight - layerMaxHeight) / actualPixelHeight) * 100;
 				// Check if this pixel's height falls within the current layer range
 				if (Math.round(difference) == 0) {
 					const index = (i * width + j) * 4;
@@ -111,7 +113,10 @@ export function getLayersWithColors(
 		}
 
 		// Always add every layer, even if empty (slicer will print all layers)
-		let avgR = 0, avgG = 0, avgB = 0, avgHeight = 0;
+		let avgR = 0,
+			avgG = 0,
+			avgB = 0,
+			avgHeight = 0;
 
 		if (layerPixels.length > 0) {
 			// Calculate average color for this layer
@@ -121,33 +126,37 @@ export function getLayersWithColors(
 			avgHeight = roundDecimal(layerPixels.reduce((sum, p) => sum + p.height, 0) / layerPixels.length);
 
 			const sample = layerPixels[0];
-			if (avgR != sample.r || avgG != sample.g || avgB != sample.b || avgHeight != sample.height) { console.error(layerMinHeight, layerMaxHeight); console.error(layerPixels) };
+			if (avgR != sample.r || avgG != sample.g || avgB != sample.b || avgHeight != sample.height) {
+				console.error(layerMinHeight, layerMaxHeight);
+				console.error(layerPixels);
+			}
 		}
 
 		// If no pixels, colors remain 0 (black) and avgHeight remains 0
 
 		// Convert to 0-255 range and create hex
-		const colorRGB = [
-			Math.round(avgR * 255),
-			Math.round(avgG * 255),
-			Math.round(avgB * 255)
-		];
-		const colorHex = "#" + colorRGB.map(c => c.toString(16).padStart(2, '0')).join('').toUpperCase();
+		const colorRGB = [Math.round(avgR * 255), Math.round(avgG * 255), Math.round(avgB * 255)];
+		const colorHex =
+			"#" +
+			colorRGB
+				.map((c) => c.toString(16).padStart(2, "0"))
+				.join("")
+				.toUpperCase();
 
 		layerData.push({
 			layerNumber: layerNum,
 			layerHeightRange: {
 				min: layerMinHeight,
-				max: layerMaxHeight
+				max: layerMaxHeight,
 			},
 			dominantColor: {
 				r: colorRGB[0],
 				g: colorRGB[1],
 				b: colorRGB[2],
-				hex: colorHex
+				hex: colorHex,
 			},
 			pixelCount: layerPixels.length,
-			averageHeight: avgHeight
+			averageHeight: avgHeight,
 		});
 	}
 

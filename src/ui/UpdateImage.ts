@@ -23,7 +23,7 @@ export function getTopographyFunction(selectedValue?: string) {
 
 // Function to resize the config.paint.image
 export function resizePaintImage(
-	//canvas: HTMLCanvasElement,
+	manipulationCanvas: HTMLCanvasElement,
 	imageToDraw: HTMLImageElement,
 	exportConfig: IExportConfig,
 	afterResize: (resized: HTMLImageElement) => void,
@@ -33,8 +33,7 @@ export function resizePaintImage(
 		return;
 	}
 
-	const canvas = document.createElement("canvas") as HTMLCanvasElement;
-	if (!canvas) {
+	if (!manipulationCanvas) {
 		console.error("Element to resize is not provided.");
 		return;
 	}
@@ -44,11 +43,11 @@ export function resizePaintImage(
 	const pixelHeight = exportConfig.imageResolution.y;
 
 	// Create a new canvas element with the calculated dimensions
-	canvas.width = pixelWidth;
-	canvas.height = pixelHeight;
+	manipulationCanvas.width = pixelWidth;
+	manipulationCanvas.height = pixelHeight;
 
 	// Get the 2D rendering context of the canvas
-	const ctx = canvas.getContext("2d");
+	const ctx = manipulationCanvas.getContext("2d");
 
 	if (ctx) {
 		// Draw the source image onto the canvas, scaling it to the new dimensions
@@ -59,7 +58,7 @@ export function resizePaintImage(
 		resizedImage.onload = () => {
 			afterResize(resizedImage);
 		};
-		resizedImage.src = canvas.toDataURL(); // Get the data URL of the canvas content
+		resizedImage.src = manipulationCanvas.toDataURL(); // Get the data URL of the canvas content
 	} else {
 		console.error("Could not get 2D rendering context for canvas.");
 	}
@@ -72,6 +71,3 @@ export function resizePaintImage(
 		updateImage();
 	}
 }*/
-
-// @ts-ignore
-//document.getElementById("update-painting-button").addEventListener("click", updateImage);
