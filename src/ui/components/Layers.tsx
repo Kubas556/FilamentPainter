@@ -158,7 +158,7 @@ function FillamentLayer({
 						type="number"
 						min="0.00"
 						max="2"
-						step="0.01"
+						step={projectConfig.layerHeight}
 						value={filamentData.layerHeight}
 						onChange={(e) => {
 							onDataChange({ ...filamentData, layerHeight: parseFloat(e.target.value) });
