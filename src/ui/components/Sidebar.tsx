@@ -66,7 +66,7 @@ export function Sidebar(props: IComponentProjectData) {
 					<span>Create New Filament</span>
 					<div className="row">
 						<span>
-							Name:{" "}
+							<a className="label">Name: </a>
 							<input
 								type="text"
 								value={filamentToAdd.name}
@@ -78,7 +78,7 @@ export function Sidebar(props: IComponentProjectData) {
 					</div>
 					<div className="row">
 						<span>
-							Colour:{" "}
+							<a className="label">Colour: </a>
 							<div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
 								<ColorPicker
 									value={selectedColor.toString("hsl")}
@@ -98,7 +98,7 @@ export function Sidebar(props: IComponentProjectData) {
 										</SliderTrack>
 									</ColorSlider>
 									<ColorField>
-										<Input />
+										<Input style={{ maxWidth: "10rem" }} />
 									</ColorField>
 								</ColorPicker>
 							</div>
@@ -106,7 +106,7 @@ export function Sidebar(props: IComponentProjectData) {
 					</div>
 					<div className="row">
 						<span>
-							TD:{" "}
+							<a className="label">TD: </a>
 							<input
 								type="number"
 								step="0.01"

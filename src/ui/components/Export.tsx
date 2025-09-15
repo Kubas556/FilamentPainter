@@ -137,8 +137,9 @@ export function Export(props: IComponentProjectData) {
 				<div className="h-gap-small"></div>
 				mm
 			</div>
-			<span id="file-size-estimate">{`Estimated file size: ${(exportConfig.imageResolution.x * exportConfig.imageResolution.y * 200) / 1000000
-				} MB`}</span>
+			<span id="file-size-estimate">{`Estimated file size: ${
+				(exportConfig.imageResolution.x * exportConfig.imageResolution.y * 200) / 1000000
+			} MB`}</span>
 			<div className="h-divider"></div>
 			<div className="inline-div">
 				<h3>Print Instructions</h3>
@@ -181,7 +182,6 @@ export function Export(props: IComponentProjectData) {
 			<a href="https://www.reddit.com/r/FilamentPainter" target="_blank">
 				Join the Filament Painter subreddit.
 			</a>
-			<a>For any inquiries, please contact: hpnrep9@gmail.com</a>
 		</section>
 	);
 }

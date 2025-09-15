@@ -61,7 +61,7 @@ const componentTypes: ComponentMap = {
 	test: Test,
 };
 
-export function Layout(/*{ container, eventHub, state }: ILyoutProps*/) {
+export function Layout() {
 	const layoutRoot = useRef<HTMLDivElement>(null);
 	const initialized = useRef(false);
 	const [layoutMan, setLayoutMan] = useState<GoldenLayout | null>(null);
