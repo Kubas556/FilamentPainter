@@ -52,13 +52,14 @@ export function getLayersWithColors(
 
 	// Find the maximum height to determine how many layers we need
 	let maxHeight = 0;
-	heights.forEach((row) => {
-		row.forEach((h) => {
+	for (let y = 0; y < height; y++) {
+		for (let x = 0; x < width; x++) {
+			const h = heights[y][x];
 			if (h > maxHeight) {
 				maxHeight = h;
 			}
-		});
-	});
+		}
+	}
 
 	// Calculate total number of layers needed
 	const totalActualHeight = maxHeight;
