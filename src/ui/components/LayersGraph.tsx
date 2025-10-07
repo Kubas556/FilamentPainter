@@ -3,6 +3,7 @@ import { useSyncState } from "../useSyncState";
 import { IComponentProjectData } from "../ExportProject";
 import { getLayersWithColors, LayerColorData } from "../../tools/HeightmapExport";
 import { FilamentData } from "../Filaments";
+import { Filament } from "../../Filament";
 
 const segmentGap = 5;
 const segmentWidth = 65;
@@ -10,6 +11,52 @@ const graphTopAndBottomPadding = 15;
 
 function roundDecimal(num: number) {
 	return Math.round(num * 100) / 100;
+}
+
+/**
+ * Linear interpolation between two values
+ */
+function mix(a: number, b: number, t: number): number {
+	return a * (1 - t) + b * t;
+}
+
+/**
+ * Normalized exponential function that maps [0, 1] to [0, 1] with an exponential curve
+ */
+function normalizedExponential(x: number): number {
+	const exp_neg_2x = Math.exp(-2.0 * x);
+	const exp_neg_2 = Math.exp(-2.0); // Precompute e^{-2}
+	return (exp_neg_2x - exp_neg_2) / (1.0 - exp_neg_2);
+}
+
+/**
+ * Interpolates between two RGB colors using an exponential transmission curve
+ * @param colourA - First color as [r, g, b] array (values 0-1)
+ * @param colourB - Second color as [r, g, b] array (values 0-1)
+ * @param t - Interpolation parameter
+ * @param opaqueness - Opaqueness factor
+ * @returns Interpolated color as [r, g, b] array
+ */
+export function interpolateColours(
+	colourA: [number, number, number],
+	colourB: [number, number, number],
+	t: number,
+	opaqueness: number,
+): [number, number, number] {
+	let amountInterpolated = t / opaqueness;
+	if (amountInterpolated > 1.0) {
+		amountInterpolated = 1.0;
+	}
+
+	// amountInterpolated in [0, 1]
+	// transform to exponential curve
+	const transmission = normalizedExponential(amountInterpolated);
+
+	return [
+		mix(colourB[0], colourA[0], transmission),
+		mix(colourB[1], colourA[1], transmission),
+		mix(colourB[2], colourA[2], transmission),
+	];
 }
 
 // https://stackoverflow.com/questions/35969656/how-can-i-generate-the-opposite-color-according-to-current-color
@@ -45,6 +92,79 @@ function padZero(str: string, len?: number) {
 	return (zeros + str).slice(-len);
 }
 
+function getLayerBlends(filaments: Filament[], baseLayerHeight: number, layerStepHeight: number): LayerColorData[] {
+	let segments: LayerColorData[] = [];
+	let prevLayer = null;
+	let layerIndex = 1;
+	let prevColor: [number, number, number] = [0, 0, 0];
+
+	for (let i = 0; i < filaments.length; i++) {
+		const layer = filaments[i];
+		if (prevLayer !== null) {
+			let baseMin = prevLayer.endHeight;
+
+			for (let h = baseMin; h < layer.endHeight; h = roundDecimal(h + layerStepHeight)) {
+				// Sample color at the END of this layer segment, not the beginning
+				const segmentEndHeight = Math.min(baseMin + layerStepHeight, layer.endHeight);
+				const color = interpolateColours(
+					prevColor,
+					[layer.colour[0], layer.colour[1], layer.colour[2]],
+					segmentEndHeight - prevLayer.endHeight, //h - prevLayer.endHeight,
+					layer.opacity,
+				);
+				const colorRGB = [Math.round(color[0] * 255), Math.round(color[1] * 255), Math.round(color[2] * 255)];
+				const colorHex =
+					"#" +
+					colorRGB
+						.map((c) => c.toString(16).padStart(2, "0"))
+						.join("")
+						.toUpperCase();
+
+				segments.push({
+					dominantColor: { r: colorRGB[0], g: colorRGB[1], b: colorRGB[2], hex: colorHex },
+					layerHeightRange: { min: roundDecimal(baseMin), max: roundDecimal(baseMin + layerStepHeight) },
+					layerNumber: layerIndex++,
+					averageHeight: 1,
+					pixelCount: 1,
+				});
+				baseMin = roundDecimal(baseMin + layerStepHeight);
+				prevColor = structuredClone([color[0], color[1], color[2]]);
+			}
+		} else {
+			const colorRGB = [
+				Math.round(layer.colour[0] * 255),
+				Math.round(layer.colour[1] * 255),
+				Math.round(layer.colour[2] * 255),
+			];
+			const colorHex =
+				"#" +
+				colorRGB
+					.map((c) => c.toString(16).padStart(2, "0"))
+					.join("")
+					.toUpperCase();
+			segments.push({
+				dominantColor: { r: colorRGB[0], g: colorRGB[1], b: colorRGB[2], hex: colorHex },
+				layerHeightRange: { min: 0, max: roundDecimal(baseLayerHeight) },
+				layerNumber: layerIndex++,
+				averageHeight: 1,
+				pixelCount: 1,
+			});
+			segments.push({
+				dominantColor: { r: colorRGB[0], g: colorRGB[1], b: colorRGB[2], hex: colorHex },
+				layerHeightRange: { min: roundDecimal(baseLayerHeight), max: roundDecimal(layer.endHeight) },
+				layerNumber: layerIndex++,
+				averageHeight: 1,
+				pixelCount: 1,
+			});
+			prevColor = structuredClone([layer.colour[0], layer.colour[1], layer.colour[2]]);
+		}
+
+		prevLayer = layer;
+	}
+
+	return segments;
+}
+
 type LayerRectProps = { x: number; y: number; width: number; height: number; fill: string };
 type FilamentMarkerProps = {
 	x: number;
@@ -69,17 +189,34 @@ export function LayersGraph(props: IComponentProjectData) {
 
 	useEffect(() => {
 		if (computedData?.computedResult && graphSize) {
-			const layersWithColors = getLayersWithColors(
+			/*const layersWithColors = getLayersWithColors(
 				computedData?.computedResult,
 				exportConfig.imageResolution.x,
 				exportConfig.imageResolution.y,
 				projectConfig.baseLayerHeight,
 				projectConfig.layerHeight,
-			); //.filter((layer) => layer.averageHeight != 0);
+			);*/ //.filter((layer) => layer.averageHeight != 0);
 
-			const sorted = layersWithColors.sort((a, b) => b.layerHeightRange.max - a.layerHeightRange.max);
+			let filaments: FilamentData[] = structuredClone(layers).reverse(); //getFilamentListElements().reverse();
+			let layerHeight = projectConfig.baseLayerHeight;
+			const usedFilaments: Filament[] = [];
+			for (let i = 0; i < filaments.length; i++) {
+				usedFilaments.push(
+					new Filament(
+						filaments[i].color,
+						Math.round((filaments[i].layerHeight + layerHeight) * 100) / 100,
+						filaments[i].name,
+						filaments[i].opacity,
+					),
+				);
+				layerHeight += filaments[i].layerHeight;
+			}
 
-			const segmentHeight = (graphSize.height - graphTopAndBottomPadding * 2) / layersWithColors.length;
+			const sorted = getLayerBlends(usedFilaments, projectConfig.baseLayerHeight, projectConfig.layerHeight).sort(
+				(a, b) => b.layerHeightRange.max - a.layerHeightRange.min,
+			); //layersWithColors.sort((a, b) => b.layerHeightRange.max - a.layerHeightRange.max);
+
+			const segmentHeight = (graphSize.height - graphTopAndBottomPadding * 2) / sorted.length;
 			let lastY = graphTopAndBottomPadding;
 
 			const layersSegmentHeights = sorted.map<{ svgY: number; layer: LayerColorData }>((layer) => {
@@ -196,7 +333,7 @@ export function LayersGraph(props: IComponentProjectData) {
 								strokeWidth={1}
 							/>
 							<polygon
-								key={`${e.fill}${e.y}`}
+								key={`pol_${e.fill}${e.y}`}
 								points={`${e.x + (e.width / 2 - 8)},${e.y + e.height / 2} ${e.x - e.width / 2},${e.y + e.height / 2} ${
 									e.x - e.width / 2
 								},${e.y - e.height / 2} ${e.x + (e.width / 2 - 8)},${e.y - e.height / 2} ${e.x + e.width / 2},${e.y}`}

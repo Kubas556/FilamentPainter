@@ -56,14 +56,14 @@ export function ImagePreview(props: IComponentProjectData) {
 				canvas.height = resized.height;
 				setRatio(resized.width / resized.height);
 
-				let filaments: FilamentData[] = [...filamentLayers].reverse(); //getFilamentListElements().reverse();
+				let filaments: FilamentData[] = structuredClone(filamentLayers).reverse(); //getFilamentListElements().reverse();
 				let layerHeight = projectConfig.baseLayerHeight;
 				const usedFilaments: Filament[] = [];
 				for (let i = 0; i < filaments.length; i++) {
 					usedFilaments.push(
 						new Filament(
 							filaments[i].color,
-							filaments[i].layerHeight + layerHeight,
+							filaments[i].layerHeight + layerHeight, //Math.round((filaments[i].layerHeight + layerHeight) * 100) / 100,
 							filaments[i].name,
 							filaments[i].opacity,
 						),
