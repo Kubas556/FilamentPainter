@@ -95,6 +95,7 @@ function padZero(str: string, len?: number) {
 function getLayerBlends(filaments: Filament[], baseLayerHeight: number, layerStepHeight: number): LayerColorData[] {
 	let segments: LayerColorData[] = [];
 	let prevLayer = null;
+	let prevLayerLastColor: [number, number, number] | null = null;
 	let layerIndex = 1;
 	let prevColor: [number, number, number] = [0, 0, 0];
 
@@ -107,7 +108,7 @@ function getLayerBlends(filaments: Filament[], baseLayerHeight: number, layerSte
 				// Sample color at the END of this layer segment, not the beginning
 				const segmentEndHeight = Math.min(baseMin + layerStepHeight, layer.endHeight);
 				const color = interpolateColours(
-					prevColor,
+					prevLayerLastColor!, //[prevLayer.colour[0], prevLayer.colour[1], prevLayer.colour[2]], //prevColor,
 					[layer.colour[0], layer.colour[1], layer.colour[2]],
 					segmentEndHeight - prevLayer.endHeight, //h - prevLayer.endHeight,
 					layer.opacity,
@@ -128,7 +129,7 @@ function getLayerBlends(filaments: Filament[], baseLayerHeight: number, layerSte
 					pixelCount: 1,
 				});
 				baseMin = roundDecimal(baseMin + layerStepHeight);
-				prevColor = structuredClone([color[0], color[1], color[2]]);
+				prevColor = [color[0], color[1], color[2]];
 			}
 		} else {
 			const colorRGB = [
@@ -156,10 +157,11 @@ function getLayerBlends(filaments: Filament[], baseLayerHeight: number, layerSte
 				averageHeight: 1,
 				pixelCount: 1,
 			});
-			prevColor = structuredClone([layer.colour[0], layer.colour[1], layer.colour[2]]);
+			prevColor = [layer.colour[0], layer.colour[1], layer.colour[2]];
 		}
 
 		prevLayer = layer;
+		prevLayerLastColor = prevColor;
 	}
 
 	return segments;
@@ -189,15 +191,15 @@ export function LayersGraph(props: IComponentProjectData) {
 
 	useEffect(() => {
 		if (computedData?.computedResult && graphSize) {
-			/*const layersWithColors = getLayersWithColors(
-				computedData?.computedResult,
-				exportConfig.imageResolution.x,
-				exportConfig.imageResolution.y,
-				projectConfig.baseLayerHeight,
-				projectConfig.layerHeight,
-			);*/ //.filter((layer) => layer.averageHeight != 0);
-
-			let filaments: FilamentData[] = structuredClone(layers).reverse(); //getFilamentListElements().reverse();
+			let filaments: FilamentData[] = structuredClone(layers)
+				.reverse()
+				.filter((x, i) => i == 0 || x.layerHeight - projectConfig.layerHeight >= projectConfig.layerHeight); // filter filaments, which will have zero height after correction
+			for (let f = 0; f < filaments.length; f++) {
+				const filament = filaments[f];
+				if (f > 0 && filament.layerHeight >= projectConfig.layerHeight) {
+					filament.layerHeight -= projectConfig.layerHeight; // Fix for layers with height of layer height step
+				}
+			}
 			let layerHeight = projectConfig.baseLayerHeight;
 			const usedFilaments: Filament[] = [];
 			for (let i = 0; i < filaments.length; i++) {
@@ -214,7 +216,7 @@ export function LayersGraph(props: IComponentProjectData) {
 
 			const sorted = getLayerBlends(usedFilaments, projectConfig.baseLayerHeight, projectConfig.layerHeight).sort(
 				(a, b) => b.layerHeightRange.max - a.layerHeightRange.min,
-			); //layersWithColors.sort((a, b) => b.layerHeightRange.max - a.layerHeightRange.max);
+			);
 
 			const segmentHeight = (graphSize.height - graphTopAndBottomPadding * 2) / sorted.length;
 			let lastY = graphTopAndBottomPadding;
@@ -239,8 +241,7 @@ export function LayersGraph(props: IComponentProjectData) {
 			);
 
 			const filamentLayersRange: { min: number; max: number; filament: FilamentData }[] = [];
-			const layersCopy = structuredClone(layers);
-			layersCopy.reverse();
+			const layersCopy = filaments; //structuredClone(layers);
 
 			for (let i = 0; i < layersCopy.length; i++) {
 				if (i == 0) {
