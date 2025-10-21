@@ -13,6 +13,7 @@ import { useLayoutEvent } from "../EventHub";
 import { IComponentProjectData } from "../ExportProject";
 import { getImageFromStringAsync } from "../../Upload";
 import { LayersGraph } from "./LayersGraph";
+import { Button, Dialog, DialogTrigger, Heading, Modal, Pressable } from "react-aria-components";
 
 const defaultLayout: LayoutConfig = {
 	header: { popout: false, maximise: false },
@@ -64,6 +65,7 @@ const componentTypes: ComponentMap = {
 export function Layout() {
 	const layoutRoot = useRef<HTMLDivElement>(null);
 	const initialized = useRef(false);
+	const [dialogOpen, setDialogOpen] = useState(false);
 	const [layoutMan, setLayoutMan] = useState<GoldenLayout | null>(null);
 	const [componentContainers, setComponentContainers] = useState<{ [name: string]: ComponentContainer | null }>({});
 	const [projectData, setProjectData] = useState<IComponentProjectData>({
@@ -132,6 +134,7 @@ export function Layout() {
 			if (!layoutMan.isSubWindow) layoutMan.loadLayout(defaultLayout);
 			setLayoutMan(layoutMan);
 			initialized.current = true;
+			setTimeout(() => setDialogOpen(true), 3000);
 		}
 		return () => {
 			if (layoutMan) {
@@ -155,6 +158,16 @@ export function Layout() {
 					const container = componentContainers[name];
 					if (container != null) return createPortal(<Component {...projectData} />, container.element);
 				})}
+			<Modal isOpen={dialogOpen}>
+				<Dialog>
+					<Heading slot="title">Dialog</Heading>
+					<p>This dialog was triggered by a custom button.</p>
+					<Button slot="close" onClick={() => setDialogOpen(false)}>
+						Close
+					</Button>
+				</Dialog>
+			</Modal>
+
 			<div style={{ width: "100%", height: "100%" }} ref={layoutRoot} />
 		</LayoutContext.Provider>
 	);
