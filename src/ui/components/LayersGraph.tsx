@@ -215,7 +215,7 @@ export function LayersGraph(props: IComponentProjectData) {
 			}
 
 			const sorted = getLayerBlends(usedFilaments, projectConfig.baseLayerHeight, projectConfig.layerHeight).sort(
-				(a, b) => b.layerHeightRange.max - a.layerHeightRange.min,
+				(a, b) => b.layerHeightRange.max - a.layerHeightRange.max,
 			);
 
 			const segmentHeight = (graphSize.height - graphTopAndBottomPadding * 2) / sorted.length;
