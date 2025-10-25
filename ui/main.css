@@ -1,4 +1,4 @@
-:root{
+:root {
     --input-padding: 0.3125rem;
     --input-border: 0.0625rem;
 }
@@ -18,13 +18,6 @@ body {
     font-size: 1rem;
 }
 
-header {
-    display: flex;
-    flex-direction: row;
-    font-weight: bold;
-    padding: 0 5rem;
-}
-
 #app {
     flex: 1;
 }
@@ -40,40 +33,8 @@ header {
     height: calc(100% - 2px);
 }
 
-.page-header {
-    background-color: #2e2e2e;
-    color: #e0e0e0;
-    padding: 0.5rem;
-    justify-content: center;
-    height: 1.25rem;
-    display: flex;
-    gap: 1rem;
-    align-items: end;
-    flex-direction: row;
-}
-
-.page-header a {
-    color: #96c8fb;
-    text-decoration: none;
-    font-weight: normal;
-}
-
-.page-header h1 {
-    margin: 0;
-    font-size: 1rem;
-    font-weight: normal;
-}
-
-.sidebar-list,
-#existing-filament-list {
+.sidebar-list {
     padding: 0;
-}
-
-.container {
-    display: grid;
-    grid-template-columns: 30rem auto;
-    flex-grow: 1;
-    overflow: hidden;
 }
 
 .layers-section-container {
@@ -120,32 +81,6 @@ header {
         margin: 0 0 0.5rem 0;
         color: #ccc;
     }
-}
-
-.preview-window {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: auto;
-    gap: 1rem;
-    padding: 1.25rem;
-    padding-right: 2.75rem;
-    height: calc(100vh - 2.5rem);
-    background-color: #1e1e1e;
-    position: relative;
-    width: 30vw;
-}
-
-.preview-window {
-    -ms-overflow-style: none;
-    /* Internet Explorer 10+ */
-    scrollbar-width: none;
-    /* Firefox */
-}
-
-.preview-window::-webkit-scrollbar {
-    display: none;
-    /* Safari and Chrome */
 }
 
 .preview-canvas {
@@ -195,6 +130,7 @@ header {
     display: flex;
     width: 100%;
     gap: 0.5rem;
+
     .label {
         width: 4rem;
     }
@@ -454,7 +390,7 @@ input[type="file"]::file-selector-button:focus {
         min-height: 18rem;
     }
 
-    #layers-section .draggable-list .filament-list-item{
+    #layers-section .draggable-list .filament-list-item {
         min-height: 18rem;
     }
 
@@ -474,7 +410,8 @@ input[type="file"]::file-selector-button:focus {
 
     #layers-section .filament-list-item.draggable-item {
 
-        .row.color-props, span[rel="icon"] {
+        .row.color-props,
+        span[rel="icon"] {
             display: none;
         }
     }
@@ -538,8 +475,4 @@ button[disabled]:active {
 textarea {
     font-family: serif;
     font-size: 0.9rem;
-}
-
-#buy-commercial {
-    background-color: #396042;
 }
