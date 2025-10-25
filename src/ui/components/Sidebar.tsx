@@ -4,6 +4,7 @@ import { FilamentData, getOpacityFromColor } from "../Filaments";
 import { IComponentProjectData } from "../ExportProject";
 
 import {
+	Button,
 	ColorArea,
 	ColorField,
 	ColorPicker,
@@ -16,9 +17,11 @@ import {
 	SliderTrack,
 } from "react-aria-components";
 import { useSyncState } from "../useSyncState";
+import { ModalDialogContext } from "../ModalDialogContext";
 
 export function Sidebar(props: IComponentProjectData) {
 	const layoutManager = useContext(LayoutContext);
+	const showDialog = useContext(ModalDialogContext);
 	const [filamentCounter, setFilamentCounter] = useState(1);
 	const [filamentToAdd, setFilamentToAdd] = useState<FilamentData>({
 		color: "#000000",
@@ -37,7 +40,15 @@ export function Sidebar(props: IComponentProjectData) {
 
 	const addLayerCallback = (layer: FilamentData) => {
 		if (filamentLayers.some((l) => l.name === layer.name)) {
-			alert(`Layer with name ${layer.name} already exists.`);
+			showDialog((close) => ({
+				title: `Layer with name ${layer.name} already exists.`,
+				isError: true,
+				body: (
+					<div style={{ display: "flex", gap: 8 }}>
+						<Button onPress={() => close()}>Ok</Button>
+					</div>
+				),
+			}));
 			return false;
 		}
 
@@ -124,6 +135,18 @@ export function Sidebar(props: IComponentProjectData) {
 						className="filament-add-button"
 						id="add-item-button-new"
 						onClick={() => {
+							/*showDialog((close) => ({
+								title: "test",
+								body: (
+									<>
+										<p>This will permanently delete the selected file. Continue?</p>
+										<div style={{ display: "flex", gap: 8 }}>
+											<Button onPress={() => close()}>Cancel</Button>
+											<Button onPress={() => close()}>Delete</Button>
+										</div>
+									</>
+								),
+							}));*/
 							if (addLayerCallback(structuredClone(filamentToAdd))) {
 								setFilamentToAdd((old) => ({ ...old, name: `Filament ${filamentCounter + 1}` }));
 								setFilamentCounter(filamentCounter + 1);

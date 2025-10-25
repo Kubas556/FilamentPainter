@@ -78,8 +78,10 @@
 	--border-color-disabled: var(--gray-100);
 	--field-background: var(--gray-50);
 	--field-text-color: var(--gray-600);
-	--overlay-background: var(--gray-50);
-	--button-background: var(--gray-50);
+	/*--overlay-background: var(--gray-50);*/
+	--overlay-background: #222222;
+	/*--button-background: var(--gray-50);*/
+	--button-background: #222222;
 	--button-background-pressed: var(--background-color);
 	/* these colors are the same between light and dark themes
    * to ensure contrast with the foreground color */
