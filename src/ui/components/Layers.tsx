@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { LayoutContext } from "../LayoutContext";
 import { IProjectConfig } from "../EventHub";
 import { FilamentData } from "../Filaments";
@@ -19,7 +19,7 @@ export function Layers(props: IComponentProjectData) {
 		return <div>Layout manager not found</div>;
 	}
 
-	const handleDragEnd = (e: React.DragEvent<HTMLUListElement>) => {
+	const handleDragEnd = (e: React.DragEvent<any>) => {
 		setDraggedItem(null);
 	};
 
@@ -35,7 +35,7 @@ export function Layers(props: IComponentProjectData) {
 					{projectConfig &&
 						filamentLayers.map((layer, index) => (
 							<FillamentLayer
-								key={layer.name}
+								key={`${layer.name}|${index}`}
 								filamentData={layer}
 								dragged={draggedItem === index}
 								onDragStart={(e) => {
@@ -54,13 +54,16 @@ export function Layers(props: IComponentProjectData) {
 									}
 								}}
 								onDelete={() => {
-									setFilamentLayers((prev) => prev.filter((l) => l.name !== layer.name));
+									setFilamentLayers((prev) => {
+										prev.splice(index, 1);
+										return [...prev];
+									});
 								}}
 								onDataChange={(newData) => {
 									setFilamentLayers((prev) => {
-										const i = prev.findIndex((l) => l.name === layer.name);
-										if (i !== -1) {
-											prev[i] = newData;
+										const i = prev[index];
+										if (i !== undefined) {
+											prev[index] = newData;
 											return [...prev];
 										}
 										return prev;

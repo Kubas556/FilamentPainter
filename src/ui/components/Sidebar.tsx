@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { LayoutContext } from "../LayoutContext";
 import { FilamentData, getOpacityFromColor } from "../Filaments";
 import { IComponentProjectData } from "../ExportProject";
@@ -19,6 +19,8 @@ import {
 import { useSyncState } from "../useSyncState";
 import { ModalDialogContext } from "../ModalDialogContext";
 
+const nameWithIndexRegex = /^(?<name>\D*)(?<index>\d+)$/;
+
 export function Sidebar(props: IComponentProjectData) {
 	const layoutManager = useContext(LayoutContext);
 	const showDialog = useContext(ModalDialogContext);
@@ -29,7 +31,7 @@ export function Sidebar(props: IComponentProjectData) {
 		opacity: 0.1,
 		layerHeight: props.projectConfig.layerHeight,
 	});
-	const [recentFilaments, setRecentFilaments] = useState<FilamentData[]>(props.filamentLayers);
+	const [recentFilaments, setRecentFilaments] = useState<FilamentData[]>(structuredClone(props.filamentLayers)); // TODO: create separate filament library
 	const [selectedColor, setSelectedColor] = useState(parseColor("#000000"));
 	const [projectConfig, setProjectConfig] = useSyncState("ProjectConfig", props.projectConfig);
 	const [filamentLayers, setFilamentLayers] = useSyncState("FilamentLayers", props.filamentLayers);
@@ -38,10 +40,20 @@ export function Sidebar(props: IComponentProjectData) {
 		return <div>Layout manager not found</div>;
 	}
 
-	const addLayerCallback = (layer: FilamentData) => {
-		if (filamentLayers.some((l) => l.name === layer.name)) {
+	const increaseIndexInName = useCallback(() => {
+		var match = filamentToAdd.name.match(nameWithIndexRegex);
+		if (match) {
+			const name = match[1];
+			const index = parseInt(match[2]);
+
+			setFilamentToAdd((old) => ({ ...old, name: `${name}${index + 1}` }));
+		}
+	}, [filamentToAdd]);
+
+	const addLayerCallback = () => {
+		if (recentFilaments.some((f) => f.name == filamentToAdd.name)) {
 			showDialog((close) => ({
-				title: `Layer with name ${layer.name} already exists.`,
+				title: `Filament with name ${filamentToAdd.name} already exists.`,
 				isError: true,
 				body: (
 					<div style={{ display: "flex", gap: 8 }}>
@@ -49,13 +61,17 @@ export function Sidebar(props: IComponentProjectData) {
 					</div>
 				),
 			}));
-			return false;
-		}
+		} else {
+			setRecentFilaments((prev) => {
+				return [...prev, structuredClone(filamentToAdd)];
+			});
 
-		setFilamentLayers((prev) => {
-			return [layer, ...prev];
-		});
-		return true;
+			setFilamentLayers((prev) => {
+				return [structuredClone(filamentToAdd), ...prev];
+			});
+
+			increaseIndexInName();
+		}
 	};
 
 	useEffect(() => {
@@ -131,50 +147,28 @@ export function Sidebar(props: IComponentProjectData) {
 							mm
 						</span>
 					</div>
-					<button
-						className="filament-add-button"
-						id="add-item-button-new"
-						onClick={() => {
-							/*showDialog((close) => ({
-								title: "test",
-								body: (
-									<>
-										<p>This will permanently delete the selected file. Continue?</p>
-										<div style={{ display: "flex", gap: 8 }}>
-											<Button onPress={() => close()}>Cancel</Button>
-											<Button onPress={() => close()}>Delete</Button>
-										</div>
-									</>
-								),
-							}));*/
-							if (addLayerCallback(structuredClone(filamentToAdd))) {
-								setFilamentToAdd((old) => ({ ...old, name: `Filament ${filamentCounter + 1}` }));
-								setFilamentCounter(filamentCounter + 1);
-								setRecentFilaments((old) => {
-									return [...old, structuredClone(filamentToAdd)];
-								});
-							}
-						}}
-					>
+					<button className="filament-add-button" id="add-item-button-new" onClick={addLayerCallback}>
 						Add Filament Layer
 					</button>
 				</li>
 			</ul>
-			<h3>Recently Created Filaments</h3>
+			<h3>Filament Library</h3>
 			<ul className="sidebar-list">
-				{recentFilaments.map((filament) => (
+				{recentFilaments.map((filament, i) => (
 					<FilamentView
-						key={filament.name}
+						key={`${filament.name}|${i}`}
 						filamentData={filament}
-						onAdd={(filamentData) => {
-							const newFilament = { ...filamentData, name: filamentToAdd.name };
-							if (addLayerCallback(structuredClone(newFilament))) {
-								setFilamentToAdd((old) => ({ ...old, name: `Filament ${filamentCounter + 1}` }));
-								setFilamentCounter(filamentCounter + 1);
-							}
+						onAdd={(existingFilament) => {
+							setFilamentLayers((prev) => {
+								return [structuredClone(existingFilament), ...prev];
+							});
+							increaseIndexInName();
 						}}
-						onDelete={(id) => {
-							setRecentFilaments((old) => old.filter((f) => f.name !== id));
+						onDelete={() => {
+							setRecentFilaments((old) => {
+								old.splice(i, 1);
+								return [...old];
+							});
 						}}
 					/>
 				))}
@@ -190,7 +184,7 @@ function FilamentView({
 }: {
 	filamentData: FilamentData;
 	onAdd: (data: FilamentData) => void;
-	onDelete: (id: string) => void;
+	onDelete: () => void;
 }) {
 	return (
 		<li className="filament-list-item">
@@ -216,12 +210,12 @@ function FilamentView({
 				</div>
 			</div>
 			<div className="row">
-				<button className="delete-layer-button" onClick={() => onDelete(filamentData.name)}>
+				<button className="delete-layer-button" onClick={() => onDelete()}>
 					Delete
 				</button>
 				<div className="h-gap" />
 				<button className="delete-layer-button" onClick={() => onAdd(filamentData)}>
-					Add
+					Add layer
 				</button>
 			</div>
 		</li>
