@@ -1,30 +1,24 @@
 import React, { useContext, useEffect, useState } from "react";
-import { emitEvent, IComputedData, useEvent } from "../EventHub";
 import { LayoutContext } from "../LayoutContext";
-import { DefaultProjectConfig } from "./Project";
 import { generateSTL } from "../Export";
 import { exportProject, IComponentProjectData } from "../ExportProject";
-import { FilamentData } from "../Filaments";
+import { useSyncState } from "../useSyncState";
 
 export const defaultExportConfig = {
 	imageResolution: { x: 0, y: 0 },
-	physicalSize: { x: 0, y: 0 },
+	physicalSize: { x: 100, y: 0 },
 	detailSize: 0.2,
 	aspectRatio: 1,
 };
 
-const defaultPhsicalSizeX = 100;
-
 export function Export(props: IComponentProjectData) {
 	const layoutManager = useContext(LayoutContext);
-	const [imageResolution, setImageResolution] = useState(props.exportConfig.imageResolution);
-	const [physicalSize, setPhysicalSize] = useState(props.exportConfig.physicalSize);
-	const [detailSize, setDetailSize] = useState(props.exportConfig.detailSize);
-	const [aspectRatio, setAspectRatio] = useState(props.exportConfig.aspectRatio);
-	const [projectConfig, setProjectConfig] = useState(DefaultProjectConfig);
-	const [sourceImage, setSourceImage] = useState<string | undefined>(props.image);
-	const [layers, setLayers] = useState<FilamentData[]>(props.filamentLayers);
-	const [computedData, setComputedData] = useState<IComputedData | undefined>(props.computedData);
+	const [exportConfig, setExportConfig] = useSyncState("ExportConfig", props.exportConfig);
+	const [projectConfig] = useSyncState("ProjectConfig", props.projectConfig);
+	const [sourceImage] = useSyncState("SourceImage", props.sourceImage);
+	const [filamentLayers] = useSyncState("FilamentLayers", props.filamentLayers);
+	const [computedData] = useSyncState("ComputedData", props.computedData);
+	const [filamentLibrary] = useSyncState("FilamentLibrary", props.filamentLibrary);
 
 	const [instructions, setInstructions] = useState<string>("");
 
@@ -36,50 +30,40 @@ export function Export(props: IComponentProjectData) {
 		const { id, value } = e.target;
 		const parsedValue = parseFloat(value);
 		if (id === "physical-x") {
-			setPhysicalSize({ x: parsedValue, y: parsedValue / aspectRatio });
+			setExportConfig((prev) => {
+				return { ...prev, physicalSize: { x: parsedValue, y: parsedValue / exportConfig.aspectRatio } };
+			});
 		} else if (id === "physical-y") {
-			setPhysicalSize({ x: parsedValue * aspectRatio, y: parsedValue });
+			setExportConfig((prev) => {
+				return { ...prev, physicalSize: { x: parsedValue * exportConfig.aspectRatio, y: parsedValue } };
+			});
 		}
 	};
 
-	useEvent("projectConfigChanged", (config) => {
-		setProjectConfig(config);
-	});
-
-	useEvent("computedDataChanged", (data) => {
-		setComputedData(data);
-	});
-
-	useEvent("layersChanged", (layers) => {
-		setLayers(layers.data);
-	});
-
-	useEvent("imageChanged", (image) => {
-		if (image.imageElement) {
-			setSourceImage(image.imageElement.src);
-
-			const newAspectRatio = image.imageElement.width / image.imageElement.height;
-			setAspectRatio(newAspectRatio);
-			setPhysicalSize({ x: defaultPhsicalSizeX, y: defaultPhsicalSizeX / newAspectRatio });
-		}
-	});
-
 	useEffect(() => {
-		emitEvent(
-			layoutManager,
-			"exportConfigChanged",
-			structuredClone({ imageResolution, physicalSize, detailSize, aspectRatio }),
-		);
-	}, [layoutManager, imageResolution, physicalSize, detailSize, aspectRatio]);
+		if (sourceImage) {
+			const newAspectRatio = sourceImage.width / sourceImage.height;
+			setExportConfig((prev) => {
+				return {
+					...exportConfig,
+					aspectRatio: newAspectRatio,
+					physicalSize: {
+						x: exportConfig.physicalSize.x,
+						y: exportConfig.physicalSize.x / newAspectRatio,
+					},
+				};
+			});
+		}
+	}, [sourceImage]);
 
 	useEffect(() => {
 		const newImageResulution = {
-			x: Math.round(physicalSize.x / detailSize),
-			y: Math.round(physicalSize.y / detailSize),
+			x: Math.round(exportConfig.physicalSize.x / exportConfig.detailSize),
+			y: Math.round(exportConfig.physicalSize.y / exportConfig.detailSize),
 		};
 
-		setImageResolution(newImageResulution);
-	}, [physicalSize, detailSize]);
+		setExportConfig((prev) => ({ ...prev, imageResolution: newImageResulution }));
+	}, [exportConfig.physicalSize, exportConfig.detailSize]);
 
 	return (
 		<section id="export-section">
@@ -89,12 +73,24 @@ export function Export(props: IComponentProjectData) {
 					<h4>Image Resolution:</h4>
 					<div>
 						width:{" "}
-						<input className="input-number" type="number" id="image-resolution-x" readOnly value={imageResolution.x} />{" "}
+						<input
+							className="input-number"
+							type="number"
+							id="image-resolution-x"
+							readOnly
+							value={exportConfig.imageResolution.x}
+						/>{" "}
 						px
 					</div>
 					<div>
 						height:{" "}
-						<input className="input-number" type="number" id="image-resolution-y" readOnly value={imageResolution.y} />{" "}
+						<input
+							className="input-number"
+							type="number"
+							id="image-resolution-y"
+							readOnly
+							value={exportConfig.imageResolution.y}
+						/>{" "}
 						px
 					</div>
 				</div>
@@ -108,7 +104,7 @@ export function Export(props: IComponentProjectData) {
 							type="number"
 							id="physical-x"
 							min="1"
-							value={physicalSize.x}
+							value={exportConfig.physicalSize.x}
 							onChange={handlePhysicalSizeChange}
 						/>{" "}
 						mm
@@ -120,7 +116,7 @@ export function Export(props: IComponentProjectData) {
 							type="number"
 							id="physical-y"
 							min="1"
-							value={physicalSize.y}
+							value={exportConfig.physicalSize.y}
 							onChange={handlePhysicalSizeChange}
 						/>{" "}
 						mm
@@ -134,8 +130,8 @@ export function Export(props: IComponentProjectData) {
 					className="input-number"
 					type="number"
 					step="0.05"
-					value={detailSize}
-					onChange={(v) => setDetailSize(parseFloat(v.target.value))}
+					value={exportConfig.detailSize}
+					onChange={(v) => setExportConfig((prev) => ({ ...prev, detailSize: parseFloat(v.target.value) }))}
 					min="0.05"
 					id="detail-size"
 				/>
@@ -143,7 +139,7 @@ export function Export(props: IComponentProjectData) {
 				mm
 			</div>
 			<span id="file-size-estimate">{`Estimated file size: ${
-				(imageResolution.x * imageResolution.y * 200) / 1000000
+				(exportConfig.imageResolution.x * exportConfig.imageResolution.y * 200) / 1000000
 			} MB`}</span>
 			<div className="h-divider"></div>
 			<div className="inline-div">
@@ -161,15 +157,11 @@ export function Export(props: IComponentProjectData) {
 			<button
 				id="export-stl"
 				onClick={() => {
-					if (computedData?.computedResult && computedData.filaments)
+					if (computedData?.computedResult && computedData.filaments) {
 						setInstructions(
-							generateSTL(
-								computedData.computedResult,
-								{ aspectRatio, detailSize, imageResolution, physicalSize },
-								projectConfig,
-								computedData.filaments,
-							) ?? "",
+							generateSTL(computedData.computedResult, exportConfig, projectConfig, computedData.filaments) ?? "",
 						);
+					}
 				}}
 			>
 				Export as STL
@@ -178,13 +170,7 @@ export function Export(props: IComponentProjectData) {
 				id="export-project"
 				onClick={() => {
 					if (sourceImage && computedData) {
-						exportProject(
-							sourceImage,
-							projectConfig,
-							{ imageResolution, physicalSize, detailSize, aspectRatio },
-							layers,
-							computedData,
-						);
+						exportProject(sourceImage.src, projectConfig, exportConfig, filamentLayers, filamentLibrary, computedData);
 					}
 				}}
 			>
@@ -197,7 +183,6 @@ export function Export(props: IComponentProjectData) {
 			<a href="https://www.reddit.com/r/FilamentPainter" target="_blank">
 				Join the Filament Painter subreddit.
 			</a>
-			<a>For any inquiries, please contact: hpnrep9@gmail.com</a>
 		</section>
 	);
 }

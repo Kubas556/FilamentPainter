@@ -4,6 +4,7 @@ import { handleImageUploadAsync } from "../../Upload";
 import { LayoutContext } from "../LayoutContext";
 import { emitEvent } from "../EventHub";
 import { IComponentProjectData } from "../ExportProject";
+import { useSyncState } from "../useSyncState";
 
 export const DefaultProjectConfig = {
 	selectedTopographyFunction: "nearest",
@@ -13,27 +14,16 @@ export const DefaultProjectConfig = {
 
 export function Project(props: IComponentProjectData) {
 	const layoutManager = useContext(LayoutContext);
-	const [selectedTopographyFunction, setSelectedTopographyFunction] = useState(
-		props.projectConfig.selectedTopographyFunction,
+
+	const [{ baseLayerHeight, layerHeight, selectedTopographyFunction }, setProjectConfig] = useSyncState(
+		"ProjectConfig",
+		props.projectConfig,
 	);
-	const [layerHeight, setLayerHeight] = useState(props.projectConfig.layerHeight);
-	const [baseLayerHeight, setBaseLayerHeight] = useState(props.projectConfig.baseLayerHeight);
+	const [sourceImage, setSourceImage] = useSyncState("SourceImage", props.sourceImage);
 
 	if (!layoutManager) {
 		return <div>Layout manager not found</div>;
 	}
-
-	useEffect(() => {
-		emitEvent(
-			layoutManager,
-			"projectConfigChanged",
-			structuredClone({
-				selectedTopographyFunction,
-				layerHeight,
-				baseLayerHeight,
-			}),
-		);
-	}, [layoutManager, selectedTopographyFunction, layerHeight, baseLayerHeight]);
 
 	return (
 		<section id="project-section">
@@ -48,7 +38,9 @@ export function Project(props: IComponentProjectData) {
 							if (result.error) {
 								console.error("Image upload error:", result.error);
 							} else if (result.imageElement) {
-								emitEvent(layoutManager, "imageChanged", result);
+								setSourceImage((prev) => {
+									if (result.imageElement) return result.imageElement;
+								});
 							}
 						})
 					}
@@ -79,7 +71,9 @@ export function Project(props: IComponentProjectData) {
 					id="height-option-selection"
 					value={selectedTopographyFunction}
 					onChange={(e) => {
-						setSelectedTopographyFunction(e.target.value);
+						setProjectConfig((prev) => {
+							return { ...prev, selectedTopographyFunction: e.target.value };
+						});
 					}}
 				>
 					<option value="nearest">Nearest Match</option>
@@ -98,7 +92,11 @@ export function Project(props: IComponentProjectData) {
 					type="number"
 					step="0.01"
 					value={layerHeight}
-					onChange={(e) => setLayerHeight(parseFloat(e.target.value))}
+					onChange={(e) =>
+						setProjectConfig((prev) => {
+							return { ...prev, layerHeight: parseFloat(e.target.value) };
+						})
+					}
 				/>{" "}
 				mm
 			</div>
@@ -111,7 +109,11 @@ export function Project(props: IComponentProjectData) {
 					type="number"
 					step="0.01"
 					value={baseLayerHeight}
-					onChange={(e) => setBaseLayerHeight(parseFloat(e.target.value))}
+					onChange={(e) =>
+						setProjectConfig((prev) => {
+							return { ...prev, baseLayerHeight: parseFloat(e.target.value) };
+						})
+					}
 				/>{" "}
 				mm
 			</div>

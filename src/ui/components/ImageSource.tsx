@@ -1,36 +1,30 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { LayoutContext } from "../LayoutContext";
-import { IExportConfig, useEvent } from "../EventHub";
 import { IComponentProjectData } from "../ExportProject";
+import { useSyncState } from "../useSyncState";
 
 export function ImageSource(props: IComponentProjectData) {
 	const layoutManager = useContext(LayoutContext);
-	const [sourceImage, setSourceImage] = useState<HTMLImageElement | undefined>(props.sourceImage);
-	const [exportConfig, setExportConfig] = useState<IExportConfig>(props.exportConfig);
+	const [sourceImage, setSourceImage] = useSyncState("SourceImage", props.sourceImage);
+	const [exportConfig, setExportConfig] = useSyncState("ExportConfig", props.exportConfig);
+	const [ratio, setRatio] = useState<number | null>(null);
 	const imageRef = useRef<HTMLCanvasElement>(null);
 
 	if (!layoutManager) {
 		return <div>Layout manager not found</div>;
 	}
 
-	useEvent("imageChanged", (image) => {
-		if (image.imageElement) {
-			setSourceImage(image.imageElement);
-		}
-	});
-
-	useEvent("exportConfigChanged", (config) => {
-		setExportConfig(config);
-	});
-
 	useEffect(() => {
 		if (imageRef.current && sourceImage && exportConfig) {
 			const pixelWidth = exportConfig.imageResolution.x;
 			const pixelHeight = exportConfig.imageResolution.y;
 
+			if (pixelWidth === 0 || pixelHeight === 0) return;
+
 			const canvas = imageRef.current;
 			canvas.width = pixelWidth;
 			canvas.height = pixelHeight;
+			setRatio(pixelWidth / pixelHeight);
 
 			const ctx = canvas.getContext("2d");
 
@@ -46,13 +40,14 @@ export function ImageSource(props: IComponentProjectData) {
 	return (
 		<div className="preview-container-observer">
 			<style>
-				{`
-				@container canvas (max-aspect-ratio: ${(imageRef.current?.width ?? 0) / (imageRef.current?.height ?? 0)}) {
-					.preview-canvas-container {
-						flex-direction: column;
+				{ratio !== null &&
+					`
+					@container canvas (max-aspect-ratio: ${ratio}) {
+						.preview-canvas-container {
+							flex-direction: column;
+						}
 					}
-				}
-			`}
+				`}
 			</style>
 			<div className="preview-canvas-container">
 				<canvas id="canvas-source" className="preview-canvas" ref={imageRef} />

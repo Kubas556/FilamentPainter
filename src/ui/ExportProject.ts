@@ -7,6 +7,7 @@ export interface IComponentProjectData {
 	projectConfig: IProjectConfig;
 	exportConfig: IExportConfig;
 	filamentLayers: FilamentData[];
+	filamentLibrary: FilamentData[];
 	sourceImage?: HTMLImageElement;
 	computedData?: IComputedData;
 }
@@ -16,6 +17,7 @@ export interface ExportedProjectData {
 	projectConfig: IProjectConfig;
 	exportConfig: IExportConfig;
 	filaments: FilamentData[];
+	filamentLibrary: FilamentData[];
 	computedData: IComputedData;
 }
 
@@ -24,6 +26,7 @@ export function exportProject(
 	projectConfig: IProjectConfig,
 	exportConfig: IExportConfig,
 	filaments: FilamentData[],
+	filamentLibrary: FilamentData[],
 	computedData: IComputedData,
 ) {
 	downloadTextFile(
@@ -33,6 +36,7 @@ export function exportProject(
 			projectConfig,
 			exportConfig,
 			filaments,
+			filamentLibrary,
 			computedData,
 		} as ExportedProjectData),
 	);

@@ -12,10 +12,13 @@ import { LayoutContext } from "../LayoutContext";
 import { useLayoutEvent } from "../EventHub";
 import { IComponentProjectData } from "../ExportProject";
 import { getImageFromStringAsync } from "../../Upload";
+import { LayersGraph } from "./LayersGraph";
+import { IModalDialogData, ModalDialog } from "./ModalDialog";
+import { ModalDialogContext } from "../ModalDialogContext";
 
 const defaultLayout: LayoutConfig = {
 	header: { popout: false, maximise: false },
-	settings: { tabControlOffset: 20 },
+	settings: { tabControlOffset: 20, popInOnClose: true },
 	dimensions: { borderWidth: 1 },
 	root: {
 		type: "row",
@@ -33,10 +36,11 @@ const defaultLayout: LayoutConfig = {
 			{
 				type: "column",
 				content: [
-					{ type: "component", componentType: "imagePreview" },
-					{ type: "component", componentType: "imageSource" },
+					{ type: "component", componentType: "imagePreview", title: "image preview" },
+					{ type: "component", componentType: "imageSource", title: "image source" },
 				],
 			},
+			{ type: "component", size: "10%", componentType: "layersGraph", title: "layers graph", reorderEnabled: false },
 		],
 	},
 };
@@ -51,6 +55,7 @@ type ComponentMap = { [name: string]: (props: IComponentProjectData) => React.JS
 const componentTypes: ComponentMap = {
 	filament: Sidebar,
 	layers: Layers,
+	layersGraph: LayersGraph,
 	export: Export,
 	imagePreview: ImagePreview,
 	imageSource: ImageSource,
@@ -58,15 +63,18 @@ const componentTypes: ComponentMap = {
 	test: Test,
 };
 
-export function Layout(/*{ container, eventHub, state }: ILyoutProps*/) {
+export function Layout() {
 	const layoutRoot = useRef<HTMLDivElement>(null);
 	const initialized = useRef(false);
+	const [dialogOpen, setDialogOpen] = useState(false);
 	const [layoutMan, setLayoutMan] = useState<GoldenLayout | null>(null);
-	const [componentContainers, setComponentContainers] = useState<{ [name: string]: ComponentContainer }>({});
+	const [DialogData, setDialogData] = useState<IModalDialogData | null>(null);
+	const [componentContainers, setComponentContainers] = useState<{ [name: string]: ComponentContainer | null }>({});
 	const [projectData, setProjectData] = useState<IComponentProjectData>({
 		projectConfig: DefaultProjectConfig,
 		exportConfig: defaultExportConfig,
 		filamentLayers: [],
+		filamentLibrary: [],
 		image: undefined,
 		computedData: undefined,
 		sourceImage: undefined,
@@ -74,15 +82,17 @@ export function Layout(/*{ container, eventHub, state }: ILyoutProps*/) {
 
 	useLayoutEvent(layoutMan, "projectLoaded", (data) => {
 		getImageFromStringAsync(data.image).then((imageGeneratedResult) => {
-			if (imageGeneratedResult.imageElement)
+			if (imageGeneratedResult.imageElement) {
 				setProjectData({
 					projectConfig: data.projectConfig,
 					exportConfig: data.exportConfig,
 					filamentLayers: data.filaments,
+					filamentLibrary: data.filamentLibrary ?? structuredClone(data.filaments),
 					image: data.image,
 					computedData: data.computedData,
 					sourceImage: imageGeneratedResult.imageElement,
 				});
+			}
 		});
 	});
 
@@ -95,17 +105,17 @@ export function Layout(/*{ container, eventHub, state }: ILyoutProps*/) {
 		if (layoutRoot.current) {
 			layoutMan = new GoldenLayout(
 				layoutRoot.current,
-				(e, e2) => {
-					console.log(e);
-					console.log(e2);
-					//const el = { type: "component", componentType: "bind", header: { show: false } };
-					//e.element.innerText = "Binded";
-					return { component: {}, virtual: false };
+				(container, component) => {
+					if (new URL(document.location.href).searchParams.get("gl-window") !== null) {
+						setComponentContainers((prev) => ({ ...prev, [component.componentType as string]: container }));
+						return { component, virtual: false };
+					}
+					return { component, virtual: false };
 				},
-				(e) => {
-					//@ts-ignore
-					//console.log(e.stateRequestEvent!("dd"));
-					console.log(e);
+				(container) => {
+					if (new URL(document.location.href).searchParams.get("gl-window") !== null) {
+						setComponentContainers((prev) => ({ ...prev, [container.componentType as string]: null }));
+					}
 				},
 			);
 
@@ -124,7 +134,8 @@ export function Layout(/*{ container, eventHub, state }: ILyoutProps*/) {
 					(item.target as Stack).header.controlsContainerElement.querySelector(".lm_close")?.remove();
 				}
 			});
-			layoutMan.loadLayout(defaultLayout);
+			layoutMan.resizeWithContainerAutomatically = true;
+			if (!layoutMan.isSubWindow) layoutMan.loadLayout(defaultLayout);
 			setLayoutMan(layoutMan);
 			initialized.current = true;
 		}
@@ -137,19 +148,28 @@ export function Layout(/*{ container, eventHub, state }: ILyoutProps*/) {
 
 	return (
 		<LayoutContext.Provider value={layoutMan}>
-			<style>
-				{`
+			<ModalDialogContext.Provider
+				value={(dialogDataCallback) => {
+					setDialogData(dialogDataCallback(() => setDialogOpen(false)));
+					setDialogOpen(true);
+				}}
+			>
+				<style>
+					{`
 				.lm_header .lm_tab.lm_active.lm_focused {
     				background-color: #500f81;
 				}
 				`}
-			</style>
-			{layoutMan &&
-				Object.keys(componentContainers).map((name) => {
-					const Component = componentTypes[name];
-					return createPortal(<Component {...projectData} />, componentContainers[name].element);
-				})}
-			<div style={{ width: "100%", height: "100%" }} ref={layoutRoot} />
+				</style>
+				{layoutMan &&
+					Object.keys(componentContainers).map((name) => {
+						const Component = componentTypes[name];
+						const container = componentContainers[name];
+						if (container != null) return createPortal(<Component {...projectData} />, container.element);
+					})}
+				<ModalDialog data={DialogData} isOpen={dialogOpen} />
+				<div style={{ width: "100%", height: "100%" }} ref={layoutRoot} />
+			</ModalDialogContext.Provider>
 		</LayoutContext.Provider>
 	);
 }

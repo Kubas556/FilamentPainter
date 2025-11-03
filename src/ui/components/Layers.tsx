@@ -1,15 +1,16 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { LayoutContext } from "../LayoutContext";
-import { emitEvent, IProjectConfig, useEvent } from "../EventHub";
+import { IProjectConfig } from "../EventHub";
 import { FilamentData } from "../Filaments";
 import { IComponentProjectData } from "../ExportProject";
 import { ValidateHEX } from "../Validations";
 import { LockIcon } from "./icons/Lock";
+import { useSyncState } from "../useSyncState";
 
 export function Layers(props: IComponentProjectData) {
 	const layoutManager = useContext(LayoutContext);
-	const [filamentLayers, setFilamentLayers] = useState<FilamentData[]>(props.filamentLayers);
-	const [projectConfig, setProjectConfig] = useState<IProjectConfig>(props.projectConfig);
+	const [filamentLayers, setFilamentLayers] = useSyncState("FilamentLayers", props.filamentLayers);
+	const [projectConfig, setProjectConfig] = useSyncState("ProjectConfig", props.projectConfig);
 
 	const [draggedItem, setDraggedItem] = useState<number | null>(null);
 	const ulRef = useRef<HTMLUListElement>(null);
@@ -18,33 +19,14 @@ export function Layers(props: IComponentProjectData) {
 		return <div>Layout manager not found</div>;
 	}
 
-	const handleDragEnd = (e: React.DragEvent<HTMLUListElement>) => {
+	const handleDragEnd = (e: React.DragEvent<any>) => {
 		setDraggedItem(null);
 	};
-
-	useEvent("layerAdded", (layer) => {
-		setFilamentLayers((prev) => {
-			if (prev.some((l) => l.name === layer.name)) {
-				alert(`Layer with name ${layer.name} already exists.`);
-				return prev;
-			}
-
-			return [layer, ...prev];
-		});
-	});
-
-	useEvent("projectConfigChanged", (config) => {
-		setProjectConfig(config);
-	});
-
-	useEffect(() => {
-		emitEvent(layoutManager, "layersChanged", structuredClone({ data: filamentLayers }));
-	}, [filamentLayers]);
 
 	return (
 		<div className="layers-section-container">
 			<section id="layers-section">
-				<div className="row filament-list-item" id="end-layer-height-label">
+				<div data-testid="header" className="row filament-list-item" id="end-layer-height-label">
 					{`End height: ${filamentLayers
 						.reduce((sum, layer) => sum + layer.layerHeight, projectConfig.baseLayerHeight)
 						.toFixed(2)} mm`}
@@ -53,7 +35,7 @@ export function Layers(props: IComponentProjectData) {
 					{projectConfig &&
 						filamentLayers.map((layer, index) => (
 							<FillamentLayer
-								key={layer.name}
+								key={`${layer.name}|${index}`}
 								filamentData={layer}
 								dragged={draggedItem === index}
 								onDragStart={(e) => {
@@ -67,18 +49,21 @@ export function Layers(props: IComponentProjectData) {
 										listCopy.splice(draggedItem, 1);
 										listCopy.splice(index, 0, draggingItemContent);
 
-										setFilamentLayers(listCopy);
+										setFilamentLayers((prev) => listCopy);
 										setDraggedItem(index);
 									}
 								}}
 								onDelete={() => {
-									setFilamentLayers((prev) => prev.filter((l) => l.name !== layer.name));
+									setFilamentLayers((prev) => {
+										prev.splice(index, 1);
+										return [...prev];
+									});
 								}}
 								onDataChange={(newData) => {
 									setFilamentLayers((prev) => {
-										const i = prev.findIndex((l) => l.name === layer.name);
-										if (i !== -1) {
-											prev[i] = newData;
+										const i = prev[index];
+										if (i !== undefined) {
+											prev[index] = newData;
 											return [...prev];
 										}
 										return prev;
@@ -176,7 +161,7 @@ function FillamentLayer({
 						type="number"
 						min="0.00"
 						max="2"
-						step="0.01"
+						step={projectConfig.layerHeight}
 						value={filamentData.layerHeight}
 						onChange={(e) => {
 							onDataChange({ ...filamentData, layerHeight: parseFloat(e.target.value) });
