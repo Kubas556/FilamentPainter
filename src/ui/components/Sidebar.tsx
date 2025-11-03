@@ -31,7 +31,7 @@ export function Sidebar(props: IComponentProjectData) {
 		opacity: 0.1,
 		layerHeight: props.projectConfig.layerHeight,
 	});
-	const [recentFilaments, setRecentFilaments] = useState<FilamentData[]>(structuredClone(props.filamentLayers)); // TODO: create separate filament library
+	const [filamentLibrary, setFilamentsInLibrary] = useSyncState("FilamentLibrary", props.filamentLibrary);
 	const [selectedColor, setSelectedColor] = useState(parseColor("#000000"));
 	const [projectConfig, setProjectConfig] = useSyncState("ProjectConfig", props.projectConfig);
 	const [filamentLayers, setFilamentLayers] = useSyncState("FilamentLayers", props.filamentLayers);
@@ -51,7 +51,7 @@ export function Sidebar(props: IComponentProjectData) {
 	}, [filamentToAdd]);
 
 	const addLayerCallback = () => {
-		if (recentFilaments.some((f) => f.name == filamentToAdd.name)) {
+		if (filamentLibrary.some((f) => f.name == filamentToAdd.name)) {
 			showDialog((close) => ({
 				title: `Filament with name ${filamentToAdd.name} already exists.`,
 				isError: true,
@@ -62,7 +62,7 @@ export function Sidebar(props: IComponentProjectData) {
 				),
 			}));
 		} else {
-			setRecentFilaments((prev) => {
+			setFilamentsInLibrary((prev) => {
 				return [...prev, structuredClone(filamentToAdd)];
 			});
 
@@ -154,7 +154,7 @@ export function Sidebar(props: IComponentProjectData) {
 			</ul>
 			<h3>Filament Library</h3>
 			<ul className="sidebar-list">
-				{recentFilaments.map((filament, i) => (
+				{filamentLibrary.map((filament, i) => (
 					<FilamentView
 						key={`${filament.name}|${i}`}
 						filamentData={filament}
@@ -165,7 +165,7 @@ export function Sidebar(props: IComponentProjectData) {
 							increaseIndexInName();
 						}}
 						onDelete={() => {
-							setRecentFilaments((old) => {
+							setFilamentsInLibrary((old) => {
 								old.splice(i, 1);
 								return [...old];
 							});

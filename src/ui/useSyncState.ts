@@ -8,6 +8,7 @@ export interface ISyncableState {
 	ExportConfig: IExportConfig;
 	ProjectConfig: IProjectConfig;
 	FilamentLayers: FilamentData[];
+	FilamentLibrary: FilamentData[];
 	ComputedData: IComputedData | undefined;
 }
 

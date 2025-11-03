@@ -18,6 +18,7 @@ export function Export(props: IComponentProjectData) {
 	const [sourceImage] = useSyncState("SourceImage", props.sourceImage);
 	const [filamentLayers] = useSyncState("FilamentLayers", props.filamentLayers);
 	const [computedData] = useSyncState("ComputedData", props.computedData);
+	const [filamentLibrary] = useSyncState("FilamentLibrary", props.filamentLibrary);
 
 	const [instructions, setInstructions] = useState<string>("");
 
@@ -169,7 +170,7 @@ export function Export(props: IComponentProjectData) {
 				id="export-project"
 				onClick={() => {
 					if (sourceImage && computedData) {
-						exportProject(sourceImage.src, projectConfig, exportConfig, filamentLayers, computedData);
+						exportProject(sourceImage.src, projectConfig, exportConfig, filamentLayers, filamentLibrary, computedData);
 					}
 				}}
 			>
