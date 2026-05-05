@@ -167,7 +167,14 @@ function getLayerBlends(filaments: Filament[], baseLayerHeight: number, layerSte
 	return segments;
 }
 
-type LayerRectProps = { x: number; y: number; width: number; height: number; fill: string };
+type LayerRectProps = { 
+	x: number; 
+	y: number; 
+	width: number; 
+	height: number; 
+	fill: string;
+	layerHeightRange: { min: number; max: number };
+};
 type FilamentMarkerProps = {
 	x: number;
 	y: number;
@@ -183,6 +190,7 @@ export function LayersGraph(props: IComponentProjectData) {
 	const [exportConfig] = useSyncState("ExportConfig", props.exportConfig);
 	const [projectConfig] = useSyncState("ProjectConfig", props.projectConfig);
 	const [layers] = useSyncState("FilamentLayers", props.filamentLayers);
+	const [, setHoveredLayerRange] = useSyncState("HoveredLayerRange", props.hoveredLayerRange ?? null);
 
 	const svgRef = useRef<SVGSVGElement | null>(null);
 	const [graphSize, setGraphSize] = useState<{ width: number; height: number }>();
@@ -236,6 +244,7 @@ export function LayersGraph(props: IComponentProjectData) {
 						width: segmentWidth,
 						height: segmentHeight,
 						fill: layerData.layer.dominantColor.hex,
+						layerHeightRange: layerData.layer.layerHeightRange,
 					};
 				}),
 			);
@@ -319,6 +328,9 @@ export function LayersGraph(props: IComponentProjectData) {
 						width={e.width}
 						height={e.height - segmentGap}
 						fill={e.fill}
+						style={{ cursor: "pointer" }}
+						onMouseEnter={() => setHoveredLayerRange(() => e.layerHeightRange)}
+						onMouseLeave={() => setHoveredLayerRange(() => null)}
 					/>
 				))}
 				{graphSize &&
