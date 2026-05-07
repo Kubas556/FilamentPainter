@@ -167,11 +167,11 @@ function getLayerBlends(filaments: Filament[], baseLayerHeight: number, layerSte
 	return segments;
 }
 
-type LayerRectProps = { 
-	x: number; 
-	y: number; 
-	width: number; 
-	height: number; 
+type LayerRectProps = {
+	x: number;
+	y: number;
+	width: number;
+	height: number;
 	fill: string;
 	layerHeightRange: { min: number; max: number };
 };
@@ -201,13 +201,8 @@ export function LayersGraph(props: IComponentProjectData) {
 		if (computedData?.computedResult && graphSize) {
 			let filaments: FilamentData[] = structuredClone(layers)
 				.reverse()
-				.filter((x, i) => i == 0 || x.layerHeight - projectConfig.layerHeight >= projectConfig.layerHeight); // filter filaments, which will have zero height after correction
-			for (let f = 0; f < filaments.length; f++) {
-				const filament = filaments[f];
-				if (f > 0 && filament.layerHeight >= projectConfig.layerHeight) {
-					filament.layerHeight -= projectConfig.layerHeight; // Fix for layers with height of layer height step
-				}
-			}
+				.filter((x, i) => i == 0 || x.layerHeight >= projectConfig.layerHeight); // filter filaments, which will have zero height after correction
+
 			let layerHeight = projectConfig.baseLayerHeight;
 			const usedFilaments: Filament[] = [];
 			for (let i = 0; i < filaments.length; i++) {
