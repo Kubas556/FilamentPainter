@@ -78,6 +78,7 @@ export function Layout() {
 		image: undefined,
 		computedData: undefined,
 		sourceImage: undefined,
+		hoveredLayerRange: null,
 	});
 
 	useLayoutEvent(layoutMan, "projectLoaded", (data) => {
