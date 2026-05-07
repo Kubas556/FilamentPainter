@@ -315,18 +315,33 @@ export function LayersGraph(props: IComponentProjectData) {
 	return (
 		<div style={{ height: "calc(100% - 2rem)", padding: "1rem" }}>
 			<svg width={"100%"} height={"100%"} ref={svgRef}>
-				{layerRectangles.map((e) => (
-					<rect
-						key={`${e.fill}${e.y}`}
-						x={e.x - segmentWidth / 2}
-						y={e.y + segmentGap / 2}
-						width={e.width}
-						height={e.height - segmentGap}
-						fill={e.fill}
-						style={{ cursor: "pointer" }}
-						onMouseEnter={() => setHoveredLayerRange(() => e.layerHeightRange)}
-						onMouseLeave={() => setHoveredLayerRange(() => null)}
-					/>
+				{layerRectangles.map((e, i, segments) => (
+					<>
+						<rect
+							key={`${e.fill}${e.y}`}
+							x={e.x - segmentWidth / 2}
+							y={e.y + segmentGap / 2}
+							width={e.width}
+							height={e.height - segmentGap}
+							fill={e.fill}
+							style={{ cursor: "pointer" }}
+							onMouseEnter={() => setHoveredLayerRange(() => e.layerHeightRange)}
+							onMouseLeave={() => setHoveredLayerRange(() => null)}
+						/>
+						{segments[i].fill == segments[i - 1]?.fill && (
+							<line
+								style={{ pointerEvents: "none" }}
+								key={`same_color_indicator_segment_one_${e.y}`}
+								x1={e.x - segmentWidth / 2}
+								y1={e.y - e.height + segmentGap / 2}
+								x2={e.x + segmentWidth / 2}
+								y2={e.y - segmentGap / 2}
+								stroke={invertColor(e.fill, true)}
+								strokeLinecap="round"
+								strokeWidth={2}
+							/>
+						)}
+					</>
 				))}
 				{graphSize &&
 					filamentMarkers.map((e) => (
