@@ -31,7 +31,7 @@ export function ImagePreview(props: IComponentProjectData) {
 
 	const imageRef = useRef<HTMLCanvasElement>(null);
 	const manipulationCanvasRef = useRef<HTMLCanvasElement>(null);
-	
+
 	const animationFrameRef = useRef<number | null>(null);
 	const currentHoverRef = useRef<IHoveredLayerRange | null>(null);
 	const computedTextureRef = useRef<WebGLTexture | null>(null);
@@ -39,24 +39,24 @@ export function ImagePreview(props: IComponentProjectData) {
 
 	const renderWithShader = (progress: number, hoverRange: IHoveredLayerRange | null) => {
 		if (!computedTextureRef.current || textureSizeRef.current.width === 0 || !imageRef.current) return;
-		
+
 		const displayEngine = getDisplayEngine();
 		const gl = config.compute.gl;
 		const computeCanvas = config.compute.canvas;
-		
+
 		computeCanvas.width = textureSizeRef.current.width;
 		computeCanvas.height = textureSizeRef.current.height;
-		
+
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		
+
 		displayEngine.render(
 			computedTextureRef.current,
 			textureSizeRef.current.width,
 			textureSizeRef.current.height,
 			hoverRange,
-			progress
+			progress,
 		);
-		
+
 		const canvas = imageRef.current;
 		const ctx = canvas.getContext("2d");
 		if (ctx) {
@@ -67,27 +67,27 @@ export function ImagePreview(props: IComponentProjectData) {
 
 	useEffect(() => {
 		if (!computedTextureRef.current) return;
-		
+
 		const startTime = performance.now();
 		const previousHover = currentHoverRef.current;
-		
+
 		if (animationFrameRef.current !== null) {
 			cancelAnimationFrame(animationFrameRef.current);
 		}
-		
+
 		const isFadingIn = hoveredLayerRange !== null;
-		
+
 		const animate = (currentTime: number) => {
 			const elapsed = currentTime - startTime;
 			let progress = Math.min(elapsed / CROSSFADE_DURATION_MS, 1);
-			
+
 			if (!isFadingIn) {
 				progress = 1 - progress;
 			}
-			
+
 			const activeHover = isFadingIn ? hoveredLayerRange : previousHover;
 			renderWithShader(progress, activeHover);
-			
+
 			if ((isFadingIn && progress < 1) || (!isFadingIn && progress > 0)) {
 				animationFrameRef.current = requestAnimationFrame(animate);
 			} else {
@@ -95,9 +95,9 @@ export function ImagePreview(props: IComponentProjectData) {
 				currentHoverRef.current = hoveredLayerRange;
 			}
 		};
-		
+
 		animationFrameRef.current = requestAnimationFrame(animate);
-		
+
 		return () => {
 			if (animationFrameRef.current !== null) {
 				cancelAnimationFrame(animationFrameRef.current);
@@ -139,6 +139,8 @@ export function ImagePreview(props: IComponentProjectData) {
 				let layerHeight = projectConfig.baseLayerHeight;
 				const usedFilaments: Filament[] = [];
 				for (let i = 0; i < filaments.length; i++) {
+					if (filaments[i].layerHeight == 0) continue;
+
 					usedFilaments.push(
 						new Filament(
 							filaments[i].color,
@@ -167,12 +169,12 @@ export function ImagePreview(props: IComponentProjectData) {
 				computedTextureRef.current = computeResult.texture;
 				textureSizeRef.current = { width: computeResult.width, height: computeResult.height };
 
-				setComputedData((prev) => ({ 
-					computedResult: computeResult.data, 
+				setComputedData((prev) => ({
+					computedResult: computeResult.data,
 					computedTexture: computeResult.texture,
 					textureWidth: computeResult.width,
 					textureHeight: computeResult.height,
-					filaments: usedFilaments 
+					filaments: usedFilaments,
 				}));
 
 				if (!ctx) {
