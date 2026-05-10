@@ -3,6 +3,11 @@ import { LayoutContext } from "./LayoutContext";
 import { IComputedData, IExportConfig, IProjectConfig } from "./EventHub";
 import { FilamentData } from "./Filaments";
 
+export interface IHoveredLayerRange {
+	min: number;
+	max: number;
+}
+
 export interface ISyncableState {
 	SourceImage: HTMLImageElement | undefined;
 	ExportConfig: IExportConfig;
@@ -10,6 +15,7 @@ export interface ISyncableState {
 	FilamentLayers: FilamentData[];
 	FilamentLibrary: FilamentData[];
 	ComputedData: IComputedData | undefined;
+	HoveredLayerRange: IHoveredLayerRange | null;
 }
 
 export function useSyncState<E extends keyof ISyncableState>(

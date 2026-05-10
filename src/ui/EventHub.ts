@@ -13,6 +13,9 @@ interface ISize {
 
 export interface IComputedData {
 	computedResult: Float32Array<ArrayBuffer> | undefined;
+	computedTexture: WebGLTexture | null;
+	textureWidth: number;
+	textureHeight: number;
 	filaments: Filament[];
 }
 

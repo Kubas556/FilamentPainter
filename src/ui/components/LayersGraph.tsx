@@ -167,7 +167,14 @@ function getLayerBlends(filaments: Filament[], baseLayerHeight: number, layerSte
 	return segments;
 }
 
-type LayerRectProps = { x: number; y: number; width: number; height: number; fill: string };
+type LayerRectProps = {
+	x: number;
+	y: number;
+	width: number;
+	height: number;
+	fill: string;
+	layerHeightRange: { min: number; max: number };
+};
 type FilamentMarkerProps = {
 	x: number;
 	y: number;
@@ -183,6 +190,7 @@ export function LayersGraph(props: IComponentProjectData) {
 	const [exportConfig] = useSyncState("ExportConfig", props.exportConfig);
 	const [projectConfig] = useSyncState("ProjectConfig", props.projectConfig);
 	const [layers] = useSyncState("FilamentLayers", props.filamentLayers);
+	const [, setHoveredLayerRange] = useSyncState("HoveredLayerRange", props.hoveredLayerRange ?? null);
 
 	const svgRef = useRef<SVGSVGElement | null>(null);
 	const [graphSize, setGraphSize] = useState<{ width: number; height: number }>();
@@ -193,13 +201,8 @@ export function LayersGraph(props: IComponentProjectData) {
 		if (computedData?.computedResult && graphSize) {
 			let filaments: FilamentData[] = structuredClone(layers)
 				.reverse()
-				.filter((x, i) => i == 0 || x.layerHeight - projectConfig.layerHeight >= projectConfig.layerHeight); // filter filaments, which will have zero height after correction
-			for (let f = 0; f < filaments.length; f++) {
-				const filament = filaments[f];
-				if (f > 0 && filament.layerHeight >= projectConfig.layerHeight) {
-					filament.layerHeight -= projectConfig.layerHeight; // Fix for layers with height of layer height step
-				}
-			}
+				.filter((x, i) => i == 0 || x.layerHeight >= projectConfig.layerHeight); // filter filaments, which will have zero height after correction
+
 			let layerHeight = projectConfig.baseLayerHeight;
 			const usedFilaments: Filament[] = [];
 			for (let i = 0; i < filaments.length; i++) {
@@ -236,6 +239,7 @@ export function LayersGraph(props: IComponentProjectData) {
 						width: segmentWidth,
 						height: segmentHeight,
 						fill: layerData.layer.dominantColor.hex,
+						layerHeightRange: layerData.layer.layerHeightRange,
 					};
 				}),
 			);
@@ -311,15 +315,33 @@ export function LayersGraph(props: IComponentProjectData) {
 	return (
 		<div style={{ height: "calc(100% - 2rem)", padding: "1rem" }}>
 			<svg width={"100%"} height={"100%"} ref={svgRef}>
-				{layerRectangles.map((e) => (
-					<rect
-						key={`${e.fill}${e.y}`}
-						x={e.x - segmentWidth / 2}
-						y={e.y + segmentGap / 2}
-						width={e.width}
-						height={e.height - segmentGap}
-						fill={e.fill}
-					/>
+				{layerRectangles.map((e, i, segments) => (
+					<>
+						<rect
+							key={`${e.fill}${e.y}`}
+							x={e.x - segmentWidth / 2}
+							y={e.y + segmentGap / 2}
+							width={e.width}
+							height={e.height - segmentGap}
+							fill={e.fill}
+							style={{ cursor: "pointer" }}
+							onMouseEnter={() => setHoveredLayerRange(() => e.layerHeightRange)}
+							onMouseLeave={() => setHoveredLayerRange(() => null)}
+						/>
+						{segments[i].fill == segments[i - 1]?.fill && (
+							<line
+								style={{ pointerEvents: "none" }}
+								key={`same_color_indicator_segment_one_${e.y}`}
+								x1={e.x - segmentWidth / 2}
+								y1={e.y - e.height + segmentGap / 2}
+								x2={e.x + segmentWidth / 2}
+								y2={e.y - segmentGap / 2}
+								stroke={invertColor(e.fill, true)}
+								strokeLinecap="round"
+								strokeWidth={2}
+							/>
+						)}
+					</>
 				))}
 				{graphSize &&
 					filamentMarkers.map((e) => (

@@ -1,6 +1,7 @@
 import { IComputedData, IExportConfig, IProjectConfig } from "./EventHub.js";
 import { downloadTextFile } from "./Export.js";
 import { FilamentData } from "./Filaments.js";
+import { IHoveredLayerRange } from "./useSyncState.js";
 
 export interface IComponentProjectData {
 	image?: string;
@@ -10,6 +11,7 @@ export interface IComponentProjectData {
 	filamentLibrary: FilamentData[];
 	sourceImage?: HTMLImageElement;
 	computedData?: IComputedData;
+	hoveredLayerRange?: IHoveredLayerRange | null;
 }
 
 export interface ExportedProjectData {

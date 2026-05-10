@@ -110,22 +110,22 @@ vec4 compute(vec2 uv) {
     for (int i = 0; i < 2000; i++) {
         currentHeight += heightRange[2];
 
-        if (currentHeight > colourHeight + 0.000001) {
+        if (currentHeight > colourHeight) {
             break;
         }
         
-        if (currentHeight < heights[0] - 0.000001) {
+        if (currentHeight <= heights[0]) {
             continue;
         }
 
-        if (currentHeight < heights[index] - 0.000001) {
+        if (currentHeight <= heights[index]) {
             if (index == 0) {
                 continue;
             }
         } else {
-            index++;
             previousColour = currentColour;
-            previousHeight = currentHeight;
+            previousHeight = heights[index];
+            index++;
             
             if (index >= numIndices) {
                 break;
@@ -172,7 +172,7 @@ const nearestMatchHieight = `
     
     for (int i = 0; i < 2000; i++) {
         currentHeight += heightRange[2];
-        if (currentHeight < heights[0] - 0.000001) {
+        if (currentHeight <= heights[0]) {
             vec3 currentColourLab = srgbToLab(currentColour);
             if (distance(currentColourLab, colourLab) <= nearestColourDistance) {
                 nearestHeight = currentHeight;
@@ -185,14 +185,14 @@ const nearestMatchHieight = `
             break;
         }
 
-        if (currentHeight < heights[index] - 0.000001) {
+        if (currentHeight <= heights[index]) {
             if (index == 0) {
                 continue;
             }
         } else {
-            index++;
             previousColour = currentColour;
-            previousHeight = currentHeight;
+            previousHeight = heights[index];
+            index++;
             
             if (index >= numIndices) {
                 break;
@@ -221,6 +221,12 @@ void main() {
 }
 `;
 
+export interface ComputeResult {
+    data: Float32Array<ArrayBuffer>;
+    texture: WebGLTexture;
+    width: number;
+    height: number;
+}
 
 export class GLComputeHeights extends GLComputeEngine {
     constructor(mode: HeightFunction) {
@@ -273,7 +279,7 @@ export class GLComputeHeights extends GLComputeEngine {
      * @return Computed values. Formatted in runs of length 4, i.e. [r1, g1, b1, h1, r2, g2, b2, h2, ...]
      * where ri, gi, bi is the rgb values and hi is the height of the pixel at index i (flattened)
      */
-    compute(image: GLImage, configInput: { filaments: Filament[], startHeight: number, endHeight: number, increment: number }): Float32Array<ArrayBuffer> {
+    compute(image: GLImage, configInput: { filaments: Filament[], startHeight: number, endHeight: number, increment: number }): ComputeResult {
         let gl = config.compute.gl;
         let program = this.program.program;
 
@@ -324,7 +330,7 @@ export class GLComputeHeights extends GLComputeEngine {
         heightRange = [configInput.startHeight, configInput.endHeight, configInput.increment];
 
         if (heights.length == 0) {
-            return new Float32Array();
+            return { data: new Float32Array(), texture: null as any, width: 0, height: 0 };
         }
 
         this.uploadComputeData(
@@ -345,9 +351,13 @@ export class GLComputeHeights extends GLComputeEngine {
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         gl.bindTexture(gl.TEXTURE_2D, null);
         gl.deleteFramebuffer(framebuffer);
-        gl.deleteTexture(outputTexture);
 
-        return outputData;
+        return { 
+            data: outputData, 
+            texture: outputTexture!, 
+            width: textureWidth, 
+            height: textureHeight 
+        };
     }
 
     private setUniform1i(name: string, a: number) {
